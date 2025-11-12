@@ -1,8 +1,8 @@
 package Ecoembes.facade;
 
-import Ecoembes.dto.EmpleadoDTO;
 import Ecoembes.service.EmpleadoService;
 import Ecoembes.service.LoginService;
+import Ecoembes.dto.EmpleadoDTO;
 
 /**
  * Controller para gestión de empleados (Patrón Facade)
@@ -32,7 +32,7 @@ public class EmpleadoController {
     /**
      * Inicia sesión de un empleado en el sistema
      * Coordina la autenticación y generación de token
-     * @param email email del usuario
+     * @param email email del empleado
      * @param password contraseña del empleado
      * @return token de sesión generado
      */
@@ -54,7 +54,10 @@ public class EmpleadoController {
         }
         
         // 2. Generar token de sesión
-        String token = loginService.generarToken(empleado.getId());
+        String token = loginService.generarToken(empleado);
+        
+        // 3. Registrar la sesión en el servicio de empleados
+        empleadoService.registrarSesion(email, token);
         
         return token;
     }
@@ -70,12 +73,43 @@ public class EmpleadoController {
         }
         
         // Validar que el token sea válido antes de cerrar sesión
-        if (loginService.validarToken(token) == null) {
+        if (!loginService.validarToken(token)) {
             throw new SecurityException("Token inválido o expirado");
         }
         
-        // Cerrar sesión
+        // Cerrar sesión en ambos servicios
         empleadoService.cerrarSesion(token);
+        loginService.invalidarToken(token);
+    }
+    
+    /**
+     * Obtiene información de un empleado por email
+     * @param email email del empleado
+     * @param token token de sesión para validación
+     * @return EmpleadoDTO con la información del empleado
+     */
+    public EmpleadoDTO getEmpleadoByEmail(String email, String token) {
+        // Validar sesión
+        if (!loginService.validarToken(token)) {
+            throw new SecurityException("Token inválido o expirado");
+        }
+        
+        return empleadoService.getEmpleadoByEmail(email);
+    }
+    
+    /**
+     * Obtiene información de un empleado por ID
+     * @param id ID del empleado
+     * @param token token de sesión para validación
+     * @return EmpleadoDTO con la información del empleado
+     */
+    public EmpleadoDTO getEmpleadoById(Long id, String token) {
+        // Validar sesión
+        if (!loginService.validarToken(token)) {
+            throw new SecurityException("Token inválido o expirado");
+        }
+        
+        return empleadoService.getEmpleadoById(id);
     }
     
     /**

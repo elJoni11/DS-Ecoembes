@@ -1,9 +1,11 @@
 package Ecoembes.facade;
 
-import Ecoembes.dto.AsignacionDTO;
 import Ecoembes.service.AsignacionService;
 import Ecoembes.service.PlantaService;
 import Ecoembes.service.LoginService;
+import Ecoembes.dto.AsignacionDTO;
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Controller para gestión de asignaciones (Patrón Facade)
@@ -30,7 +32,7 @@ public class AsignacionController {
      * Constructor por defecto
      */
     public AsignacionController() {
-        this.asignacionService = new AsignacionService(null, plantaService);
+        this.asignacionService = new AsignacionService();
         this.plantaService = new PlantaService();
         this.loginService = new LoginService();
     }
@@ -38,18 +40,18 @@ public class AsignacionController {
     /**
      * Asigna un contenedor a una planta
      * Coordina la verificación de capacidad y la asignación
-     * @param contenedorId ID del contenedor a asignar
-     * @param plantaId ID de la planta destino
+     * @param contenedorID ID del contenedor a asignar
+     * @param plantaID ID de la planta destino
      * @param token token de sesión para validación
      * @return AsignacionDTO con los datos de la asignación creada
      */
-    public AsignacionDTO AsignarContenedor(String contenedorId, String plantaId, String token) {
+    public AsignacionDTO AsignarContenedor(String contenedorID, String plantaID, String token) {
         // Validaciones previas
-        if (contenedorId == null || contenedorId.isEmpty()) {
+        if (contenedorID == null || contenedorID.isEmpty()) {
             throw new IllegalArgumentException("El ID del contenedor es obligatorio");
         }
         
-        if (plantaId == null || plantaId.isEmpty()) {
+        if (plantaID == null || plantaID.isEmpty()) {
             throw new IllegalArgumentException("El ID de la planta es obligatorio");
         }
         
@@ -58,21 +60,64 @@ public class AsignacionController {
         }
         
         // Validar sesión
-        if (loginService.validarToken(token) == null) {
+        if (!loginService.validarToken(token)) {
             throw new SecurityException("Token inválido o expirado");
         }
         
         // Verificar capacidad de la planta
-        int capacidadDisponible = plantaService.getCapacidad(plantaId);
+        int capacidadDisponible = plantaService.getCapacidad(plantaID);
         
         if (capacidadDisponible <= 0) {
-            throw new IllegalStateException("La planta " + plantaId + " no tiene capacidad disponible");
+            throw new IllegalStateException("La planta " + plantaID + " no tiene capacidad disponible");
         }
         
         // Realizar la asignación
-        AsignacionDTO asignacion = asignacionService.asignarContenedor(contenedorId, plantaId);
+        AsignacionDTO asignacion = asignacionService.asignarContenedor(contenedorID, plantaID);
+        
+        // Reducir la capacidad de la planta
+        plantaService.reducirCapacidad(plantaID, 1);
         
         // Enviar notificación automáticamente
+        asignacionService.enviarNotificacion(asignacion);
+        
+        return asignacion;
+    }
+    
+    /**
+     * Asigna múltiples contenedores a una planta
+     * @param contenedoresIDs lista de IDs de contenedores
+     * @param plantaID ID de la planta destino
+     * @param token token de sesión para validación
+     * @return AsignacionDTO con los datos de la asignación creada
+     */
+    public AsignacionDTO AsignarContenedores(List<String> contenedoresIDs, String plantaID, String token) {
+        // Validaciones
+        if (contenedoresIDs == null || contenedoresIDs.isEmpty()) {
+            throw new IllegalArgumentException("Debe proporcionar al menos un contenedor");
+        }
+        
+        if (plantaID == null || plantaID.isEmpty()) {
+            throw new IllegalArgumentException("El ID de la planta es obligatorio");
+        }
+        
+        if (!loginService.validarToken(token)) {
+            throw new SecurityException("Token inválido o expirado");
+        }
+        
+        // Verificar capacidad
+        int cantidadContenedores = contenedoresIDs.size();
+        if (!plantaService.tieneCapacidadSuficiente(plantaID, cantidadContenedores)) {
+            throw new IllegalStateException("La planta no tiene capacidad suficiente para " + 
+                                          cantidadContenedores + " contenedores");
+        }
+        
+        // Realizar asignación
+        AsignacionDTO asignacion = asignacionService.asignarContenedores(contenedoresIDs, plantaID);
+        
+        // Reducir capacidad
+        plantaService.reducirCapacidad(plantaID, cantidadContenedores);
+        
+        // Notificar
         asignacionService.enviarNotificacion(asignacion);
         
         return asignacion;
@@ -94,12 +139,40 @@ public class AsignacionController {
         }
         
         // Validar sesión
-        if (loginService.validarToken(token) == null) {
+        if (!loginService.validarToken(token)) {
             throw new SecurityException("Token inválido o expirado");
         }
         
         // Enviar notificación
         asignacionService.enviarNotificacion(asignacion);
+    }
+    
+    /**
+     * Obtiene asignaciones por planta
+     * @param plantaID ID de la planta
+     * @param token token de sesión para validación
+     * @return lista de asignaciones de la planta
+     */
+    public List<AsignacionDTO> getAsignacionesByPlanta(String plantaID, String token) {
+        if (!loginService.validarToken(token)) {
+            throw new SecurityException("Token inválido o expirado");
+        }
+        
+        return asignacionService.getAsignacionesByPlanta(plantaID);
+    }
+    
+    /**
+     * Obtiene asignaciones por fecha
+     * @param fecha fecha de las asignaciones
+     * @param token token de sesión para validación
+     * @return lista de asignaciones de la fecha
+     */
+    public List<AsignacionDTO> getAsignacionesByFecha(LocalDate fecha, String token) {
+        if (!loginService.validarToken(token)) {
+            throw new SecurityException("Token inválido o expirado");
+        }
+        
+        return asignacionService.getAsignacionesByFecha(fecha);
     }
     
     /**

@@ -1,63 +1,98 @@
 package Ecoembes.service;
 
-import java.time.Instant;
+import Ecoembes.dto.EmpleadoDTO;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
+import java.time.LocalDateTime;
 
+/**
+ * Servicio para la gestión de tokens de autenticación
+ */
 public class LoginService {
-
-    // El atributo es 'tokensActivos', pero el tipo de clave/valor es más importante.
-    // Clave: Token (String), Valor: ID de Empleado (Long).
-    // Usamos ConcurrentHashMap para ser seguros en un entorno multihilo (servidor).
-    private final Map<String, Long> tokensActivos;
-
-    // --- Constructor ---
-    public LoginService() {
-        this.tokensActivos = new ConcurrentHashMap<>();
-    }
-
-    // --- Funcionalidad de Generación de Token ---
+    
+    // Almacén de tokens activos (token -> información del empleado)
+    private Map<String, TokenInfo> tokensActivos = new HashMap<>();
+    
+    // Tiempo de expiración de tokens en minutos
+    private static final int EXPIRACION_MINUTOS = 60;
+    
     /**
-     * Genera un nuevo token único y lo asocia al ID del empleado.
-     * Esta función debe ser llamada por EmpleadoAppService después de una autenticación exitosa.
-     * @param empleadoId El ID del empleado que inicia sesión.
-     * @return El token de sesión generado.
+     * Clase interna para almacenar información del token
      */
-    public String generarToken(Long empleadoId) {
-        // Genera un token simple basado en el timestamp actual.
-        // En una aplicación real, se usaría un JWT o un UUID para mayor seguridad.
-        String token = String.valueOf(Instant.now().toEpochMilli()) + "-" + empleadoId;
-
-        // Asocia el token generado con el ID del empleado.
-        tokensActivos.put(token, empleadoId);
+    private static class TokenInfo {
+        Long empleadoId;
+        LocalDateTime fechaCreacion;
+        
+        TokenInfo(Long empleadoId, LocalDateTime fechaCreacion) {
+            this.empleadoId = empleadoId;
+            this.fechaCreacion = fechaCreacion;
+        }
+        
+        boolean estaExpirado() {
+            return LocalDateTime.now().isAfter(fechaCreacion.plusMinutes(EXPIRACION_MINUTOS));
+        }
+    }
+    
+    /**
+     * Genera un token de sesión para un empleado
+     * @param empleado empleado para el cual generar el token
+     * @return token de sesión generado
+     */
+    public String generarToken(EmpleadoDTO empleado) {
+        // Generar un token único
+        String token = "TOKEN-" + UUID.randomUUID().toString();
+        
+        // Almacenar el token con la información del empleado
+        tokensActivos.put(token, new TokenInfo(empleado.getId(), LocalDateTime.now()));
         
         return token;
     }
-
-    // --- Funcionalidad de Validación de Token ---
+    
     /**
-     * Verifica si un token es válido y retorna el ID del empleado asociado.
-     * La Façade usará este método para asegurar que cualquier petición es autorizada.
-     * @param token El token recibido en la cabecera de la petición (ej: Authorization).
-     * @return El ID del empleado (Long) si el token es válido, o null si no lo es.
+     * Valida si un token es válido y no ha expirado
+     * @param token token a validar
+     * @return true si el token es válido, false en caso contrario
      */
-    public Long validarToken(String token) {
-        // En P1, solo se verifica si el token existe en el mapa de activos.
-        return tokensActivos.get(token);
+    public boolean validarToken(String token) {
+        if (token == null || token.isEmpty()) {
+            return false;
+        }
+        
+        TokenInfo info = tokensActivos.get(token);
+        
+        if (info == null) {
+            return false;
+        }
+        
+        // Verificar si el token ha expirado
+        if (info.estaExpirado()) {
+            tokensActivos.remove(token);
+            return false;
+        }
+        
+        return true;
     }
     
-    // --- Funcionalidad de Eliminación de Token (Logout) ---
     /**
-     * Invalida un token para cerrar la sesión.
-     * @param token El token a eliminar.
-     * @return true si el token fue removido, false si no existía.
+     * Invalida un token (lo elimina del sistema)
      */
-    public boolean eliminarToken(String token) {
-        return tokensActivos.remove(token) != null;
+    public void invalidarToken(String token) {
+        tokensActivos.remove(token);
     }
     
-    // --- Funcionalidad de Utilidad ---
-    public int getNumeroTokensActivos() {
-        return tokensActivos.size();
+    /**
+     * Obtiene el ID del empleado asociado a un token
+     */
+    public Long getEmpleadoIdFromToken(String token) {
+        TokenInfo info = tokensActivos.get(token);
+        return info != null ? info.empleadoId : null;
+    }
+    
+    /**
+     * Limpia tokens expirados (método de mantenimiento)
+     */
+    public void limpiarTokensExpirados() {
+        tokensActivos.entrySet().removeIf(entry -> entry.getValue().estaExpirado());
     }
 }

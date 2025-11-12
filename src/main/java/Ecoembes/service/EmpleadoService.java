@@ -1,96 +1,81 @@
 package Ecoembes.service;
 
+import Ecoembes.dto.EmpleadoDTO;
 import java.util.HashMap;
 import java.util.Map;
-import java.time.Instant;
-import java.util.concurrent.ConcurrentHashMap;
 
-import Ecoembes.entity.Empleado;
-
+/**
+ * Servicio para la gestión de empleados y autenticación
+ */
 public class EmpleadoService {
-
-    // --- (1) Simulación de la "Base de Datos" en memoria (Prototipo 1) ---
-    // Repositorio de todos los empleados
-    private final Map<Long, Empleado> repositorioEmpleados;
     
-    // --- (2) Gestión del Estado/Token (Patrón StateManagement) ---
-    // Clave: Token (String), Valor: ID de Empleado (Long)
-    // Se usa ConcurrentHashMap para ser thread-safe, mejor para servicios.
-    private final Map<String, Long> tokensActivos;
-
-    // --- Constructor ---
+    // Simulación de base de datos de empleados
+    private Map<String, EmpleadoDTO> empleados = new HashMap<>();
+    
+    // Sesiones activas (email -> token)
+    private Map<String, String> sesionesActivas = new HashMap<>();
+    
     public EmpleadoService() {
-        this.repositorioEmpleados = new HashMap<>();
-        this.tokensActivos = new ConcurrentHashMap<>();
-        inicializarDatosDemo(); 
+        // Inicializar con algunos empleados de prueba
+        inicializarEmpleados();
     }
     
-    // Método de inicialización (Solo para Prototipo 1)
-    private void inicializarDatosDemo() {
-        // ID 1: Administrador (usado para la creación de contenedores)
-        repositorioEmpleados.put(1L, new Empleado(1L, "Ana García", "ana@ecoembes.es", "pass123"));
-        // ID 2: Operario (otro perfil para la demo)
-        repositorioEmpleados.put(2L, new Empleado(2L, "Juan Perez", "juan@ecoembes.es", "pass456"));
+    private void inicializarEmpleados() {
+        EmpleadoDTO emp1 = new EmpleadoDTO(1L, "Juan Pérez", "juan@ecoembes.com", "admin123");
+        EmpleadoDTO emp2 = new EmpleadoDTO(2L, "María García", "maria@ecoembes.com", "user123");
+        
+        empleados.put(emp1.getEmail(), emp1);
+        empleados.put(emp2.getEmail(), emp2);
     }
-
-
-    // --- (3) Funcionalidad de iniciarSesion ---
+    
     /**
-     * Realiza el proceso de autenticación. Genera y retorna un token si es exitoso.
-     * @param email El correo electrónico del empleado.
-     * @param password La contraseña del empleado.
-     * @return El token generado (String) o null si las credenciales son incorrectas.
+     * Inicia sesión de un empleado
+     * @param email email del empleado
+     * @param password contraseña del empleado
+     * @return EmpleadoDTO si las credenciales son correctas, null en caso contrario
      */
-    public String iniciarSesion(String email, String password) {
-        // 1. Buscar el empleado por email (simulación de búsqueda en DB)
-        Empleado empleado = repositorioEmpleados.values().stream()
-                .filter(e -> e.getEmail().equalsIgnoreCase(email))
-                .findFirst()
-                .orElse(null);
-
-        if (empleado == null) {
-            return null; // Empleado no encontrado
-        }
-
-        // 2. Verificar la contraseña (¡ATENCIÓN! Simulación sin hashing)
-        if (!empleado.getPassword().equals(password)) {
-            return null; // Contraseña incorrecta
+    public EmpleadoDTO iniciarSesion(String email, String password) {
+        EmpleadoDTO empleado = empleados.get(email);
+        
+        if (empleado != null && empleado.getPassword().equals(password)) {
+            // Credenciales correctas
+            return empleado;
         }
         
-        // 3. Generar el token (timestamp del momento)
-        // Se usa el timestamp como un token simple para P1.
-        String token = String.valueOf(Instant.now().toEpochMilli());
-        
-        // 4. Almacenar el token activo
-        tokensActivos.put(token, empleado.getId());
-        
-        return token;
-    }
-
-    // --- (4) Funcionalidad de cerrarSesion ---
-    /**
-     * Cierra la sesión eliminando el token activo.
-     * @param token El token a invalidar.
-     * @return true si el token fue eliminado, false si no existía.
-     */
-    public boolean cerrarSesion(String token) {
-        // Eliminar el token del estado del servidor
-        return tokensActivos.remove(token) != null; 
+        // Credenciales incorrectas
+        return null;
     }
     
-    // --- (5) Método de Utilidad para la validación (usado por la Façade) ---
     /**
-     * Verifica si un token es válido y retorna el ID del empleado.
-     * @param token El token a verificar.
-     * @return El ID del empleado Long, o null si el token no es válido/ha caducado.
+     * Cierra la sesión de un empleado
+     * @param token token de sesión a cerrar
      */
-    public Long validarToken(String token) {
-        // En P1, solo se verifica si el token existe en el mapa.
-        return tokensActivos.get(token);
+    public void cerrarSesion(String token) {
+        // Buscar y eliminar la sesión
+        sesionesActivas.values().remove(token);
     }
     
-    // --- (6) Método de Utilidad para obtener el objeto Empleado completo ---
-    public Empleado getEmpleadoById(Long id) {
-        return repositorioEmpleados.get(id);
+    /**
+     * Registra una sesión activa
+     */
+    public void registrarSesion(String email, String token) {
+        sesionesActivas.put(email, token);
+    }
+    
+    /**
+     * Obtiene un empleado por email
+     */
+    public EmpleadoDTO getEmpleadoByEmail(String email) {
+        return empleados.get(email);
+    }
+    
+    /**
+     * Obtiene un empleado por ID
+     */
+    public EmpleadoDTO getEmpleadoById(Long id) {
+        return empleados.values().stream()
+            .filter(e -> e.getId().equals(id))
+            .findFirst()
+            .orElse(null);
     }
 }

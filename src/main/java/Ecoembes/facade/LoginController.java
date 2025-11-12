@@ -1,7 +1,7 @@
 package Ecoembes.facade;
 
-import Ecoembes.dto.EmpleadoDTO;
 import Ecoembes.service.LoginService;
+import Ecoembes.dto.EmpleadoDTO;
 
 /**
  * Controller para gestión de login y tokens (Patrón Facade)
@@ -36,7 +36,7 @@ public class LoginController {
             throw new IllegalArgumentException("El empleado no puede ser nulo");
         }
         
-        if (empleado.getId() == null || empleado.getId().isEmpty()) {
+        if (empleado.getId() == null) {
             throw new IllegalArgumentException("El ID del empleado es obligatorio");
         }
         
@@ -57,6 +57,28 @@ public class LoginController {
         
         // Validar token
         return loginService.validarToken(token);
+    }
+    
+    /**
+     * Invalida un token (cierra sesión)
+     * @param token token a invalidar
+     */
+    public void invalidarToken(String token) {
+        if (token != null && !token.isEmpty()) {
+            loginService.invalidarToken(token);
+        }
+    }
+    
+    /**
+     * Obtiene el ID del empleado asociado a un token
+     * @param token token de sesión
+     * @return ID del empleado o null si el token no es válido
+     */
+    public Long getEmpleadoIdFromToken(String token) {
+        if (!validarToken(token)) {
+            return null;
+        }
+        return loginService.getEmpleadoIdFromToken(token);
     }
     
     /**

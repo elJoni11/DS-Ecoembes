@@ -1,7 +1,9 @@
 package Ecoembes.facade;
 
+import Ecoembes.service.ContenedorService;
 import Ecoembes.dto.ContenedorDTO;
-import Ecoembes.service.ContenedorService
+import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Controller para gestión de contenedores (Patrón Facade)
@@ -36,12 +38,12 @@ public class ContenedorController {
             throw new IllegalArgumentException("El contenedor no puede ser nulo");
         }
         
-        if (contenedor.getTipo() == null || contenedor.getTipo().isEmpty()) {
-            throw new IllegalArgumentException("El tipo de contenedor es obligatorio");
+        if (contenedor.getUbicacion() == null || contenedor.getUbicacion().isEmpty()) {
+            throw new IllegalArgumentException("La ubicación del contenedor es obligatoria");
         }
         
-        if (contenedor.getZona() == null || contenedor.getZona().isEmpty()) {
-            throw new IllegalArgumentException("La zona es obligatoria");
+        if (contenedor.getCapacidad() <= 0) {
+            throw new IllegalArgumentException("La capacidad debe ser mayor que 0");
         }
         
         // Delegar al servicio
@@ -65,6 +67,47 @@ public class ContenedorController {
         
         // Delegar al servicio
         return contenedorService.actualizarContenedor(contenedor);
+    }
+    
+    /**
+     * Obtiene contenedores por código postal (zona)
+     * @param codPostal código postal de la zona
+     * @return lista de contenedores en esa zona
+     */
+    public List<ContenedorDTO> getContenedoresByZona(int codPostal) {
+        return contenedorService.getContenedoresByZona(codPostal);
+    }
+    
+    /**
+     * Obtiene contenedores actualizados en una fecha específica
+     * @param fecha fecha de actualización
+     * @return lista de contenedores actualizados en esa fecha
+     */
+    public List<ContenedorDTO> getContenedorByFecha(LocalDate fecha) {
+        if (fecha == null) {
+            throw new IllegalArgumentException("La fecha no puede ser nula");
+        }
+        return contenedorService.getContenedorByFecha(fecha);
+    }
+    
+    /**
+     * Obtiene un contenedor por su ID
+     * @param contenedorID ID del contenedor
+     * @return ContenedorDTO o null si no existe
+     */
+    public ContenedorDTO getContenedorById(String contenedorID) {
+        if (contenedorID == null || contenedorID.isEmpty()) {
+            throw new IllegalArgumentException("El ID del contenedor es obligatorio");
+        }
+        return contenedorService.getContenedorById(contenedorID);
+    }
+    
+    /**
+     * Obtiene todos los contenedores del sistema
+     * @return lista de todos los contenedores
+     */
+    public List<ContenedorDTO> getAllContenedores() {
+        return contenedorService.getAllContenedores();
     }
     
     /**

@@ -1,109 +1,122 @@
 package Ecoembes.service;
 
+import Ecoembes.dto.AsignacionDTO;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-import Ecoembes.entity.Asignacion;
-import Ecoembes.entity.Contenedor;
-import Ecoembes.entity.Empleado;
-import Ecoembes.entity.NivelLlenado;
-import Ecoembes.service.ContenedorService;
-import Ecoembes.service.LoginService;
-import Ecoembes.service.PlantaService;
-
-	public class AsignacionService {
-
-	    // --- (1) Dependencias de otros servicios ---
-	    // Usamos 'final' para garantizar que las dependencias se inyectan en el constructor
-	    private final ContenedorService contenedorService;
-	    private final PlantaService plantaService;
-	    private final List<Asignacion> repositorioAsignaciones; // Simulación de DB
-	    
-	    // El constructor recibe las dependencias.
-	    public AsignacionService(ContenedorService contenedorService, PlantaService plantaService) {
-	        this.contenedorService = contenedorService;
-	        this.plantaService = plantaService;
-	        this.repositorioAsignaciones = new ArrayList<>(); 
-	    }
-
-
-	    // --- (2) Funcionalidad de Asignación ---
-	    /**
-	     * Intenta asignar una lista de contenedores a una planta específica.
-	     * @param empleado El Empleado que realiza la acción (auditoría).
-	     * @param contenedorIDs Lista de IDs de contenedores a asignar.
-	     * @param plantaID ID de la planta de destino.
-	     * @return Objeto Asignacion si fue exitoso, o null si la planta no tiene capacidad.
-	     */
-	    public Asignacion asignarContenedores(Empleado empleado, List<String> contenedorIDs, String plantaID) {
-	        
-	        // 1. Obtener los contenedores y calcular el total de envases
-	        List<Contenedor> contenedoresAAsignar = contenedorIDs.stream()
-	            // Obtener el objeto Contenedor
-	            .map(contenedorService::getContenedorById) 
-	            // Filtrar: debe existir y estar lleno (ROJO)
-	            .filter(c -> c != null && c.getNivelLlenado() == NivelLlenado.ROJO) 
-	            .collect(Collectors.toList());
-
-	        if (contenedoresAAsignar.isEmpty()) {
-	            System.out.println("ADVERTENCIA: No hay contenedores válidos para asignar.");
-	            return null;
-	        }
-
-	        // Calcular el total de envases a asignar
-	        long envasesEstimadosTotal = contenedoresAAsignar.stream()
-	            .mapToLong(Contenedor::getEnvasesEstimados)
-	            .sum();
-
-	        LocalDate fechaAsignacion = LocalDate.now();
-	        
-	        // 2. CONSULTA Y VALIDACIÓN (Usa PlantaAppService)
-	        if (!plantaService.tieneCapacidadSuficiente(plantaID, (int) envasesEstimadosTotal, fechaAsignacion)) {
-	            System.out.println("FALLO: La planta " + plantaID + " no tiene capacidad para " + envasesEstimadosTotal + " envases.");
-	            return null;
-	        }
-
-	        // 3. ENVÍO DE NOTIFICACIÓN
-	        String notificacion = enviarNotificacion(plantaID, contenedoresAAsignar.size(), (int) envasesEstimadosTotal);
-
-	        // 4. REGISTRO: Crear el objeto Asignacion
-	        Asignacion nuevaAsignacion = new Asignacion(
-	            UUID.randomUUID().toString(), // ID único para la asignación
-	            LocalDateTime.now(),
-	            String.join(",", contenedorIDs), // Lista de IDs de contenedores
-	            plantaID,
-	            empleado.getId(), // ID del empleado para auditoría
-	            envasesEstimadosTotal,
-	            notificacion
-	        );
-	        
-	        // 5. Simular "guardado" en DB
-	        repositorioAsignaciones.add(nuevaAsignacion);
-	        
-	        return nuevaAsignacion;
-	    }
-
-
-	    // --- (3) Funcionalidad de Notificación (Método interno) ---
-	    private String enviarNotificacion(String plantaID, int numContenedores, int envasesEstimadosTotal) {
-	        String mensaje = String.format(
-	            "NOTIFICACIÓN: Se ha asignado un lote de %d contenedores (Total estimado: %d envases) a la planta %s.",
-	            numContenedores, 
-	            envasesEstimadosTotal, 
-	            plantaID
-	        );
-	        System.out.println("NOTIFICACIÓN ENVIADA a " + plantaID + ": " + mensaje);
-	        return mensaje;
-	    }
-	    
-	    // --- (4) Funcionalidad de Utilidad (Consulta de Asignaciones) ---
-	    public List<Asignacion> getAsignacionesByPlanta(String plantaID) {
-	        return repositorioAsignaciones.stream()
-	               .filter(a -> a.getPlantaID().equals(plantaID))
-	               .collect(Collectors.toList());
-	    }
-	}
+/**
+ * Servicio para la gestión de asignaciones de contenedores a plantas
+ */
+public class AsignacionService {
+    
+    // Simulación de base de datos de asignaciones
+    private Map<String, AsignacionDTO> asignaciones = new HashMap<>();
+    private int contadorAsignaciones = 1;
+    
+    /**
+     * Asigna un contenedor a una planta
+     * @param contenedorID ID del contenedor
+     * @param plantaID ID de la planta
+     * @return AsignacionDTO con los datos de la asignación creada
+     */
+    public AsignacionDTO asignarContenedor(String contenedorID, String plantaID) {
+        // Crear nueva asignación
+        AsignacionDTO asignacion = new AsignacionDTO();
+        asignacion.setAsignacionID("ASIG-" + String.format("%04d", contadorAsignaciones++));
+        asignacion.setFecha(LocalDate.now());
+        asignacion.setPlantaID(plantaID);
+        
+        // Crear lista con el contenedor asignado
+        List<String> contenedores = new ArrayList<>();
+        contenedores.add(contenedorID);
+        asignacion.setContenedorID(contenedores);
+        
+        // Establecer notificación por defecto
+        asignacion.setNotificacion("Contenedor " + contenedorID + " asignado a planta " + plantaID);
+        
+        // Guardar en la "base de datos"
+        asignaciones.put(asignacion.getAsignacionID(), asignacion);
+        
+        return asignacion;
+    }
+    
+    /**
+     * Asigna múltiples contenedores a una planta
+     * @param contenedoresIDs lista de IDs de contenedores
+     * @param plantaID ID de la planta
+     * @return AsignacionDTO con los datos de la asignación creada
+     */
+    public AsignacionDTO asignarContenedores(List<String> contenedoresIDs, String plantaID) {
+        AsignacionDTO asignacion = new AsignacionDTO();
+        asignacion.setAsignacionID("ASIG-" + String.format("%04d", contadorAsignaciones++));
+        asignacion.setFecha(LocalDate.now());
+        asignacion.setPlantaID(plantaID);
+        asignacion.setContenedorID(new ArrayList<>(contenedoresIDs));
+        
+        asignacion.setNotificacion(contenedoresIDs.size() + " contenedores asignados a planta " + plantaID);
+        
+        asignaciones.put(asignacion.getAsignacionID(), asignacion);
+        
+        return asignacion;
+    }
+    
+    /**
+     * Envía una notificación sobre una asignación
+     * @param asignacion asignación sobre la cual notificar
+     */
+    public void enviarNotificacion(AsignacionDTO asignacion) {
+        // En un sistema real, esto enviaría un email, SMS, o notificación push
+        System.out.println("═══════════════════════════════════════════");
+        System.out.println("📧 NOTIFICACIÓN ENVIADA");
+        System.out.println("═══════════════════════════════════════════");
+        System.out.println("Asignación ID: " + asignacion.getAsignacionID());
+        System.out.println("Fecha: " + asignacion.getFecha());
+        System.out.println("Planta: " + asignacion.getPlantaID());
+        System.out.println("Contenedores: " + asignacion.getContenedorID());
+        System.out.println("Mensaje: " + asignacion.getNotificacion());
+        System.out.println("═══════════════════════════════════════════\n");
+    }
+    
+    /**
+     * Obtiene una asignación por ID
+     */
+    public AsignacionDTO getAsignacionById(String asignacionID) {
+        return asignaciones.get(asignacionID);
+    }
+    
+    /**
+     * Obtiene todas las asignaciones de una planta
+     */
+    public List<AsignacionDTO> getAsignacionesByPlanta(String plantaID) {
+        List<AsignacionDTO> resultado = new ArrayList<>();
+        for (AsignacionDTO asignacion : asignaciones.values()) {
+            if (asignacion.getPlantaID().equals(plantaID)) {
+                resultado.add(asignacion);
+            }
+        }
+        return resultado;
+    }
+    
+    /**
+     * Obtiene todas las asignaciones de una fecha
+     */
+    public List<AsignacionDTO> getAsignacionesByFecha(LocalDate fecha) {
+        List<AsignacionDTO> resultado = new ArrayList<>();
+        for (AsignacionDTO asignacion : asignaciones.values()) {
+            if (asignacion.getFecha().equals(fecha)) {
+                resultado.add(asignacion);
+            }
+        }
+        return resultado;
+    }
+    
+    /**
+     * Obtiene todas las asignaciones
+     */
+    public List<AsignacionDTO> getAllAsignaciones() {
+        return new ArrayList<>(asignaciones.values());
+    }
+}
