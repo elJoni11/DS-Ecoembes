@@ -1,11 +1,11 @@
-package com.deusto.ecoembes.appService;
+package Ecoembes.service;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
-// Asumimos que la clase Empleado ya existe en este paquete
-import com.deusto.ecoembes.entity.Empleado;
+
+import Ecoembes.entity.Empleado;
 
 public class EmpleadoService {
 

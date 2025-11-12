@@ -1,4 +1,4 @@
-package com.deusto.ecoembes.entity;
+package Ecoembes.entity;
 
 public class Empleado {
 

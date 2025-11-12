@@ -1,16 +1,16 @@
-package com.deusto.ecoembes.appService;
+package Ecoembes.service;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.ArrayList; // Necesario para devolver listas
 
-// Importamos las clases de dominio que ya definimos
-	import com.deusto.ecoembes.entity.Contenedor; 
-	import com.deusto.ecoembes.entity.NivelLlenado;
-	import com.deusto.ecoembes.entity.Empleado; 
+import Ecoembes.entity.Contenedor;
+import Ecoembes.entity.Empleado;
+import Ecoembes.entity.NivelLlenado;
+
+import java.util.ArrayList; // Necesario para devolver listas 
 
 public class ContenedorService {
 

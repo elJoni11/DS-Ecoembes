@@ -1,8 +1,8 @@
-package com.deusto.ecoembes.DTO;
+package Ecoembes.dto;
 
 	import java.time.LocalDate;
-	// Importamos NivelLlenado (o NivelDeLlenado) según el nombre que hayas usado en tu entidad
-	import com.deusto.ecoembes.entity.NivelLlenado; 
+
+import Ecoembes.entity.NivelLlenado; 
 
 	public class ContenedorDTO {
 	    

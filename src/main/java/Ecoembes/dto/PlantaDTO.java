@@ -1,4 +1,4 @@
-package com.deusto.ecoembes.DTO;
+package Ecoembes.dto;
 
 import java.time.LocalDate;
 import java.util.Map;

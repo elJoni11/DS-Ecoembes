@@ -1,4 +1,4 @@
-package com.deusto.ecoembes.DTO;
+package Ecoembes.dto;
 
 public class EmpleadoDTO {
 

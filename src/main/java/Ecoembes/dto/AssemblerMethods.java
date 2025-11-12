@@ -1,7 +1,12 @@
-package com.deusto.ecoembes.DTO;
+package Ecoembes.dto;
 
 
-import com.deusto.ecoembes.entity.*; // O el paquete donde estén tus Entidades de Dominio
+import Ecoembes.entity.*; // O el paquete donde estén tus Entidades de Dominio
+
+import Ecoembes.entity.Asignacion;
+import Ecoembes.entity.Contenedor;
+import Ecoembes.entity.Empleado;
+import Ecoembes.entity.Planta;
 
 public class AssemblerMethods {
 

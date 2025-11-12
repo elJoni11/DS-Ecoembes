@@ -1,4 +1,4 @@
-package com.deusto.ecoembes.appService;
+package Ecoembes.service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -7,14 +7,13 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-// Importamos los servicios de los que dependemos (Inyección de dependencias simulada)
-	import com.deusto.ecoembes.entity.Empleado;
-	import com.deusto.ecoembes.entity.Contenedor;
-	import com.deusto.ecoembes.entity.Asignacion;
-	import com.deusto.ecoembes.entity.NivelLlenado;
-	import com.deusto.ecoembes.appService.ContenedorService;
-	import com.deusto.ecoembes.appService.PlantaService;
-	import com.deusto.ecoembes.appService.LoginService; // Para verificar el empleado
+import Ecoembes.entity.Asignacion;
+import Ecoembes.entity.Contenedor;
+import Ecoembes.entity.Empleado;
+import Ecoembes.entity.NivelLlenado;
+import Ecoembes.service.ContenedorService;
+import Ecoembes.service.LoginService;
+import Ecoembes.service.PlantaService;
 
 	public class AsignacionService {
 
