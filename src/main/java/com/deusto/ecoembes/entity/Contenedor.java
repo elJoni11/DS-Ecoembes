@@ -5,15 +5,15 @@ import java.time.LocalDate;
 public class Contenedor {
 
     // Atributos de identificación y ubicación
-    private String contenedorId; // Identificador único del contenedor[cite: 36].
-    private String ubicacion;    // Dirección del contenedor[cite: 36].
-    private int capacidad;     // Capacidad inicial[cite: 47].
-    private int codPostal;      // Necesario para la consulta por zona[cite: 50].
+    private String contenedorId; // Identificador único del contenedor
+    private String ubicacion;    // Dirección del contenedor
+    private int capacidad;     // Capacidad inicial
+    private int codPostal;      // Necesario para la consulta por zona
 
     // Atributos dinámicos (estado actual reportado por el sensor)
-    private LocalDate fechaActualizada; // Fecha de la última actualización del sensor (simulada a las 3:00)[cite: 37].
-    private int envasesEstimados;        // Número estimado de envases que contiene[cite: 37].
-    private NivelLlenado nivelLlenado; // Estado actual (Verde, Naranja o Rojo)[cite: 38].
+    private LocalDate fechaActualizada; // Fecha de la última actualización del sensor (simulada a las 3:00)
+    private int envasesEstimados;        // Número estimado de envases que contiene
+    private NivelLlenado nivelLlenado; // Estado actual (Verde, Naranja o Rojo)
 
 
     // --- Constructor Completo ---
