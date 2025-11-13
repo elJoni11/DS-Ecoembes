@@ -2,10 +2,12 @@ package Ecoembes.service;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Service;
 
 /**
  * Servicio para la gestión de plantas de reciclaje
  */
+@Service
 public class PlantaService {
     
     // Simulación de base de datos de plantas (plantaID -> capacidad disponible)
