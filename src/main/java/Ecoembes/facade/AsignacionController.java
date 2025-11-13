@@ -175,7 +175,7 @@ public class AsignacionController {
     
 // --- Clases Auxiliares (Para recibir el JSON del Body) ---
     
-    private static class AsignacionSimpleRequest {
+    public static class AsignacionSimpleRequest {
         private String contenedorID;
         private String plantaID;
         
@@ -186,7 +186,7 @@ public class AsignacionController {
         public void setPlantaID(String plantaID) { this.plantaID = plantaID; }
     }
     
-    private static class AsignacionMultipleRequest {
+    public static class AsignacionMultipleRequest {
         private List<String> contenedoresIDs;
         private String plantaID;
         

@@ -124,7 +124,7 @@ public class EmpleadoController {
     }
     
  // Clase interna auxiliar para el login, necesaria para recibir el JSON
-    private static class EmpleadoCredenciales {
+    public static class EmpleadoCredenciales {
         private String email;
         private String password;
         
