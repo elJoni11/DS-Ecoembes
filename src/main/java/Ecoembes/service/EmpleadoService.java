@@ -3,10 +3,12 @@ package Ecoembes.service;
 import Ecoembes.dto.EmpleadoDTO;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Service;
 
 /**
  * Servicio para la gestión de empleados y autenticación
  */
+@Service
 public class EmpleadoService {
     
     // Simulación de base de datos de empleados
