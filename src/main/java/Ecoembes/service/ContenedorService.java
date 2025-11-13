@@ -5,10 +5,12 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 /**
  * Servicio para la gestión de contenedores
  */
+@Service
 public class ContenedorService {
     
     // Simulación de base de datos

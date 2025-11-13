@@ -4,11 +4,15 @@ import Ecoembes.service.ContenedorService;
 import Ecoembes.dto.ContenedorDTO;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Controller para gestión de contenedores (Patrón Facade)
  * Proporciona una interfaz simplificada para las operaciones de contenedores
  */
+@RestController
+@RequestMapping("/api/contenedores")
 public class ContenedorController {
     
     private ContenedorService contenedorService;
@@ -32,7 +36,8 @@ public class ContenedorController {
      * @param contenedor DTO con los datos del contenedor a crear
      * @return ContenedorDTO con el contenedor creado
      */
-    public ContenedorDTO CrearContenedor(ContenedorDTO contenedor) {
+    @PostMapping("/crear")
+    public ContenedorDTO CrearContenedor(@RequestBody ContenedorDTO contenedor) {
         // Validaciones previas
         if (contenedor == null) {
             throw new IllegalArgumentException("El contenedor no puede ser nulo");
@@ -55,7 +60,8 @@ public class ContenedorController {
      * @param contenedor DTO con los datos actualizados del contenedor
      * @return ContenedorDTO con el contenedor actualizado
      */
-    public ContenedorDTO ActualizarContenedor(ContenedorDTO contenedor) {
+    @PutMapping("/actualizar")
+    public ContenedorDTO ActualizarContenedor(@RequestBody ContenedorDTO contenedor) {
         // Validaciones previas
         if (contenedor == null) {
             throw new IllegalArgumentException("El contenedor no puede ser nulo");
@@ -74,7 +80,8 @@ public class ContenedorController {
      * @param codPostal código postal de la zona
      * @return lista de contenedores en esa zona
      */
-    public List<ContenedorDTO> getContenedoresByZona(int codPostal) {
+    @GetMapping("/zona")
+    public List<ContenedorDTO> getContenedoresByZona(@RequestParam int codPostal) {
         return contenedorService.getContenedoresByZona(codPostal);
     }
     
@@ -83,7 +90,8 @@ public class ContenedorController {
      * @param fecha fecha de actualización
      * @return lista de contenedores actualizados en esa fecha
      */
-    public List<ContenedorDTO> getContenedorByFecha(LocalDate fecha) {
+    @GetMapping("/fecha")
+    public List<ContenedorDTO> getContenedorByFecha(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)LocalDate fecha) {
         if (fecha == null) {
             throw new IllegalArgumentException("La fecha no puede ser nula");
         }
@@ -95,7 +103,8 @@ public class ContenedorController {
      * @param contenedorID ID del contenedor
      * @return ContenedorDTO o null si no existe
      */
-    public ContenedorDTO getContenedorById(String contenedorID) {
+    @GetMapping("/{id}")
+    public ContenedorDTO getContenedorById(@PathVariable("id") String contenedorID) {
         if (contenedorID == null || contenedorID.isEmpty()) {
             throw new IllegalArgumentException("El ID del contenedor es obligatorio");
         }
@@ -106,6 +115,7 @@ public class ContenedorController {
      * Obtiene todos los contenedores del sistema
      * @return lista de todos los contenedores
      */
+    @GetMapping("/todos")
     public List<ContenedorDTO> getAllContenedores() {
         return contenedorService.getAllContenedores();
     }
