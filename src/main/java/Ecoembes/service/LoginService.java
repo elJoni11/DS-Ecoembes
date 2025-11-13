@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.time.LocalDateTime;
+import org.springframework.stereotype.Service;
 
 /**
  * Servicio para la gestión de tokens de autenticación
  */
+@Service
 public class LoginService {
     
     // Almacén de tokens activos (token -> información del empleado)
