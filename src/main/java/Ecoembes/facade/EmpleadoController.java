@@ -92,22 +92,6 @@ public class EmpleadoController {
     }
     
     /**
-     * Obtiene información de un empleado por email
-     * @param email email del empleado
-     * @param token token de sesión para validación
-     * @return EmpleadoDTO con la información del empleado
-     */
-    @GetMapping("/porEmail")
-    public EmpleadoDTO getEmpleadoByEmail(@PathVariable String email, @RequestHeader("X-Auth-Token") String token) {
-        // Validar sesión
-        if (!loginService.validarToken(token)) {
-            throw new SecurityException("Token inválido o expirado");
-        }
-        
-        return empleadoService.getEmpleadoByEmail(email);
-    }
-    
-    /**
      * Obtiene información de un empleado por ID
      * @param id ID del empleado
      * @param token token de sesión para validación
@@ -124,35 +108,19 @@ public class EmpleadoController {
     }
     
     /**
-     * Obtiene el servicio de empleados
-     * @return EmpleadoService
+     * Obtiene información de un empleado por email
+     * @param email email del empleado
+     * @param token token de sesión para validación
+     * @return EmpleadoDTO con la información del empleado
      */
-    public EmpleadoService getEmpleadoService() {
-        return empleadoService;
-    }
-    
-    /**
-     * Establece el servicio de empleados
-     * @param empleadoService servicio a establecer
-     */
-    public void setEmpleadoService(EmpleadoService empleadoService) {
-        this.empleadoService = empleadoService;
-    }
-    
-    /**
-     * Obtiene el servicio de login
-     * @return LoginService
-     */
-    public LoginService getLoginService() {
-        return loginService;
-    }
-    
-    /**
-     * Establece el servicio de login
-     * @param loginService servicio a establecer
-     */
-    public void setLoginService(LoginService loginService) {
-        this.loginService = loginService;
+    @GetMapping("/porEmail")
+    public EmpleadoDTO getEmpleadoByEmail(@PathVariable String email, @RequestHeader("X-Auth-Token") String token) {
+        // Validar sesión
+        if (!loginService.validarToken(token)) {
+            throw new SecurityException("Token inválido o expirado");
+        }
+        
+        return empleadoService.getEmpleadoByEmail(email);
     }
     
  // Clase interna auxiliar para el login, necesaria para recibir el JSON

@@ -76,6 +76,28 @@ public class ContenedorController {
     }
     
     /**
+     * Obtiene todos los contenedores del sistema
+     * @return lista de todos los contenedores
+     */
+    @GetMapping("/todos")
+    public List<ContenedorDTO> getAllContenedores() {
+        return contenedorService.getAllContenedores();
+    }
+    
+    /**
+     * Obtiene un contenedor por su ID
+     * @param contenedorID ID del contenedor
+     * @return ContenedorDTO o null si no existe
+     */
+    @GetMapping("/{id}")
+    public ContenedorDTO getContenedorById(@PathVariable("id") String contenedorID) {
+        if (contenedorID == null || contenedorID.isEmpty()) {
+            throw new IllegalArgumentException("El ID del contenedor es obligatorio");
+        }
+        return contenedorService.getContenedorById(contenedorID);
+    }
+    
+    /**
      * Obtiene contenedores por código postal (zona)
      * @param codPostal código postal de la zona
      * @return lista de contenedores en esa zona
@@ -96,43 +118,5 @@ public class ContenedorController {
             throw new IllegalArgumentException("La fecha no puede ser nula");
         }
         return contenedorService.getContenedorByFecha(fecha);
-    }
-    
-    /**
-     * Obtiene un contenedor por su ID
-     * @param contenedorID ID del contenedor
-     * @return ContenedorDTO o null si no existe
-     */
-    @GetMapping("/{id}")
-    public ContenedorDTO getContenedorById(@PathVariable("id") String contenedorID) {
-        if (contenedorID == null || contenedorID.isEmpty()) {
-            throw new IllegalArgumentException("El ID del contenedor es obligatorio");
-        }
-        return contenedorService.getContenedorById(contenedorID);
-    }
-    
-    /**
-     * Obtiene todos los contenedores del sistema
-     * @return lista de todos los contenedores
-     */
-    @GetMapping("/todos")
-    public List<ContenedorDTO> getAllContenedores() {
-        return contenedorService.getAllContenedores();
-    }
-    
-    /**
-     * Obtiene el servicio de contenedores
-     * @return ContenedorService
-     */
-    public ContenedorService getContenedorService() {
-        return contenedorService;
-    }
-    
-    /**
-     * Establece el servicio de contenedores
-     * @param contenedorService servicio a establecer
-     */
-    public void setContenedorService(ContenedorService contenedorService) {
-        this.contenedorService = contenedorService;
     }
 }
