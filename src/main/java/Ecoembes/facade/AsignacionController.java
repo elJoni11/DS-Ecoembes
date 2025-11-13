@@ -6,11 +6,15 @@ import Ecoembes.service.LoginService;
 import Ecoembes.dto.AsignacionDTO;
 import java.time.LocalDate;
 import java.util.List;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Controller para gestión de asignaciones (Patrón Facade)
  * Proporciona una interfaz simplificada para las operaciones de asignación
  */
+@RestController
+@RequestMapping("/api/asignaciones")
 public class AsignacionController {
     
     private AsignacionService asignacionService;
@@ -45,39 +49,29 @@ public class AsignacionController {
      * @param token token de sesión para validación
      * @return AsignacionDTO con los datos de la asignación creada
      */
-    public AsignacionDTO AsignarContenedor(String contenedorID, String plantaID, String token) {
-        // Validaciones previas
-        if (contenedorID == null || contenedorID.isEmpty()) {
-            throw new IllegalArgumentException("El ID del contenedor es obligatorio");
-        }
+    @PostMapping("/asignarSimple")
+    public AsignacionDTO AsignarContenedor(@RequestBody AsignacionSimpleRequest request, 
+    		@RequestHeader("X-Auth-Token") String token) {
         
-        if (plantaID == null || plantaID.isEmpty()) {
-            throw new IllegalArgumentException("El ID de la planta es obligatorio");
-        }
-        
-        if (token == null || token.isEmpty()) {
-            throw new IllegalArgumentException("El token es obligatorio");
-        }
-        
-        // Validar sesión
-        if (!loginService.validarToken(token)) {
+    	String contenedorID = request.getContenedorID();
+        String plantaID = request.getPlantaID();
+    	
+        // 1. Validar sesión
+        if (token == null || !loginService.validarToken(token)) {
             throw new SecurityException("Token inválido o expirado");
         }
         
-        // Verificar capacidad de la planta
-        int capacidadDisponible = plantaService.getCapacidad(plantaID);
-        
+        // 2. Verificar capacidad (Lógica Facade)
+        int capacidadDisponible = plantaService.getCapacidad(plantaID); // Asumiendo este método existe
         if (capacidadDisponible <= 0) {
             throw new IllegalStateException("La planta " + plantaID + " no tiene capacidad disponible");
         }
         
-        // Realizar la asignación
+        // 3. Realizar la asignación y reducir capacidad
         AsignacionDTO asignacion = asignacionService.asignarContenedor(contenedorID, plantaID);
+        plantaService.reducirCapacidad(plantaID, 1); // Asumiendo este método existe
         
-        // Reducir la capacidad de la planta
-        plantaService.reducirCapacidad(plantaID, 1);
-        
-        // Enviar notificación automáticamente
+        // 4. Enviar notificación
         asignacionService.enviarNotificacion(asignacion);
         
         return asignacion;
@@ -90,34 +84,32 @@ public class AsignacionController {
      * @param token token de sesión para validación
      * @return AsignacionDTO con los datos de la asignación creada
      */
-    public AsignacionDTO AsignarContenedores(List<String> contenedoresIDs, String plantaID, String token) {
-        // Validaciones
-        if (contenedoresIDs == null || contenedoresIDs.isEmpty()) {
-            throw new IllegalArgumentException("Debe proporcionar al menos un contenedor");
-        }
+    @PostMapping("/asignarMultiple")
+    public AsignacionDTO AsignarContenedores(@RequestBody AsignacionMultipleRequest request, 
+    		@RequestHeader("X-Auth-Token") String token) {
         
-        if (plantaID == null || plantaID.isEmpty()) {
-            throw new IllegalArgumentException("El ID de la planta es obligatorio");
-        }
-        
-        if (!loginService.validarToken(token)) {
+    	List<String> contenedoresIDs = request.getContenedoresIDs();
+        String plantaID = request.getPlantaID();
+        int cantidadContenedores = contenedoresIDs != null ? contenedoresIDs.size() : 0;
+    	
+        // 1. Validar sesión y datos
+        if (token == null || !loginService.validarToken(token)) {
             throw new SecurityException("Token inválido o expirado");
         }
-        
-        // Verificar capacidad
-        int cantidadContenedores = contenedoresIDs.size();
-        if (!plantaService.tieneCapacidadSuficiente(plantaID, cantidadContenedores)) {
-            throw new IllegalStateException("La planta no tiene capacidad suficiente para " + 
-                                          cantidadContenedores + " contenedores");
+        if (cantidadContenedores == 0) {
+            throw new IllegalArgumentException("Debe proporcionar al menos un contenedor");
+        }
+
+        // 2. Verificar capacidad
+        if (!plantaService.tieneCapacidadSuficiente(plantaID, cantidadContenedores)) { // Asumiendo este método existe
+            throw new IllegalStateException("La planta no tiene capacidad suficiente");
         }
         
-        // Realizar asignación
+        // 3. Realizar asignación y reducir capacidad
         AsignacionDTO asignacion = asignacionService.asignarContenedores(contenedoresIDs, plantaID);
-        
-        // Reducir capacidad
         plantaService.reducirCapacidad(plantaID, cantidadContenedores);
         
-        // Notificar
+        // 4. Notificar
         asignacionService.enviarNotificacion(asignacion);
         
         return asignacion;
@@ -153,8 +145,11 @@ public class AsignacionController {
      * @param token token de sesión para validación
      * @return lista de asignaciones de la planta
      */
-    public List<AsignacionDTO> getAsignacionesByPlanta(String plantaID, String token) {
-        if (!loginService.validarToken(token)) {
+    @GetMapping("/porPlanta")
+    public List<AsignacionDTO> getAsignacionesByPlanta(@PathVariable String plantaID, 
+    		@RequestHeader("X-Auth-Token") String token) {
+    	// Validar sesión
+    	if (!loginService.validarToken(token)) {
             throw new SecurityException("Token inválido o expirado");
         }
         
@@ -167,59 +162,38 @@ public class AsignacionController {
      * @param token token de sesión para validación
      * @return lista de asignaciones de la fecha
      */
-    public List<AsignacionDTO> getAsignacionesByFecha(LocalDate fecha, String token) {
-        if (!loginService.validarToken(token)) {
+    @GetMapping("/porFecha")
+    public List<AsignacionDTO> getAsignacionesByFecha(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha, 
+    		@RequestHeader("X-Auth-Token") String token) {
+        // Validar sesión
+    	if (!loginService.validarToken(token)) {
             throw new SecurityException("Token inválido o expirado");
         }
         
         return asignacionService.getAsignacionesByFecha(fecha);
     }
     
-    /**
-     * Obtiene el servicio de asignaciones
-     * @return AsignacionService
-     */
-    public AsignacionService getAsignacionService() {
-        return asignacionService;
+// --- Clases Auxiliares (Para recibir el JSON del Body) ---
+    
+    private static class AsignacionSimpleRequest {
+        private String contenedorID;
+        private String plantaID;
+        
+        // Getters y Setters...
+        public String getContenedorID() { return contenedorID; }
+        public void setContenedorID(String contenedorID) { this.contenedorID = contenedorID; }
+        public String getPlantaID() { return plantaID; }
+        public void setPlantaID(String plantaID) { this.plantaID = plantaID; }
     }
     
-    /**
-     * Establece el servicio de asignaciones
-     * @param asignacionService servicio a establecer
-     */
-    public void setAsignacionService(AsignacionService asignacionService) {
-        this.asignacionService = asignacionService;
-    }
-    
-    /**
-     * Obtiene el servicio de plantas
-     * @return PlantaService
-     */
-    public PlantaService getPlantaService() {
-        return plantaService;
-    }
-    
-    /**
-     * Establece el servicio de plantas
-     * @param plantaService servicio a establecer
-     */
-    public void setPlantaService(PlantaService plantaService) {
-        this.plantaService = plantaService;
-    }
-    
-    /**
-     * Obtiene el servicio de login
-     * @return LoginService
-     */
-    public LoginService getLoginService() {
-        return loginService;
-    }
-    
-    /**
-     * Establece el servicio de login
-     * @param loginService servicio a establecer
-     */
-    public void setLoginService(LoginService loginService) {
-        this.loginService = loginService;
+    private static class AsignacionMultipleRequest {
+        private List<String> contenedoresIDs;
+        private String plantaID;
+        
+        // Getters y Setters...
+        public List<String> getContenedoresIDs() { return contenedoresIDs; }
+        public void setContenedoresIDs(List<String> contenedoresIDs) { this.contenedoresIDs = contenedoresIDs; }
+        public String getPlantaID() { return plantaID; }
+        public void setPlantaID(String plantaID) { this.plantaID = plantaID; }
     }
 }

@@ -6,10 +6,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
 
 /**
  * Servicio para la gestión de asignaciones de contenedores a plantas
  */
+@Service
 public class AsignacionService {
     
     // Simulación de base de datos de asignaciones
