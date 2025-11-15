@@ -1,31 +1,29 @@
 package Ecoembes.entity;
 
 public class Empleado {
-
-	// Atributos (Variables de instancia)
-    private Long id; // Identificador único, usado para auditoría y persistencia.
+	
+    private String id;
     private String nombre;
-    private String email;    // Usado para el proceso de autenticación (Login).
-    private String password; // Usado para el proceso de autenticación (Login).
+    private String email;
+    private String password;
 
-    // --- Constructor Completo ---
-
-    public Empleado(Long id, String nombre, String email, String password) {
+    /** Constructor para crear/inicializar un Empleado **/
+    public Empleado(String id, String nombre, String email, String password) {
         this.id = id;
         this.nombre = nombre;
         this.email = email;
         this.password = password;
     }
 
-    // --- Constructor sin ID (Útil antes de ser guardado en base de datos) ---
+    // Constructor sin ID (Útil antes de ser guardado en base de datos)
     public Empleado(String nombre, String email, String password) {
         this.nombre = nombre;
         this.email = email;
         this.password = password;
     }
     
-    // --- Getters 
-    public Long getId() {
+    // Getters 
+    public String getId() {
         return id;
     }
 
@@ -42,8 +40,8 @@ public class Empleado {
         return password;
     }
 
-    // --- Setters 
-    public void setId(Long id) {
+    // Setters 
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -59,7 +57,7 @@ public class Empleado {
         this.password = password;
     }
 
-    // --- Método toString --> Para imprimir
+    // Método toString
     @Override
     public String toString() {
         return "Empleado{" +

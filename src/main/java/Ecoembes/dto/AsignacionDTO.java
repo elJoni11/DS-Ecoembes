@@ -6,30 +6,64 @@ import java.util.List;
 public class AsignacionDTO {
     
     private String asignacionID;
-    private LocalDate fecha; // Podría ser LocalDateTime, pero Date/LocalDate es más simple para DTO
-    private List<String> contenedorID; // Lista de contenedores asignados
     private String plantaID;
-    private long envasesEstimadosTotal; 
-    private String notificacion;
+    private LocalDate fechaPrevista;
+    private List<String> listaContenedores;
+    private int totalEnvasesEstimados;
+    private String asignador;
+    private boolean notificacion;
 
-    // --- Constructor vacío y con parámetros (omito para brevedad) ---
+    // --- Constructor vacío  -> obligatorio para la deserialización de JSON (Spring Boot)
+    public AsignacionDTO() {
+    }
 
-    // --- Getters y Setters ---
-    public String getAsignacionID() { return asignacionID; }
-    public void setAsignacionID(String asignacionID) { this.asignacionID = asignacionID; }
+    // Getters y Setters
+    public String getAsignacionID() { 
+    	return asignacionID; 
+    }
+    public void setAsignacionID(String asignacionID) { 
+    	this.asignacionID = asignacionID; 
+    }
     
-    public LocalDate getFecha() { return fecha; }
-    public void setFecha(LocalDate fecha) { this.fecha = fecha; }
+    public String getPlantaID() { 
+    	return plantaID; 
+    }
+    public void setPlantaID(String plantaID) { 
+    	this.plantaID = plantaID; 
+    }
     
-    public List<String> getContenedorID() { return contenedorID; }
-    public void setContenedorID(List<String> contenedorID) { this.contenedorID = contenedorID; }
+    public LocalDate getFechaPrevista() { 
+    	return fechaPrevista; 
+    }
+    public void setFechaPrevista(LocalDate fechaPrevista) { 
+    	this.fechaPrevista = fechaPrevista; 
+    }
     
-    public String getPlantaID() { return plantaID; }
-    public void setPlantaID(String plantaID) { this.plantaID = plantaID; }
+    public List<String> getListaContenedores() { 
+    	return listaContenedores; 
+    }
+    public void setListaContenedores(List<String> contenedorID) { 
+    	this.listaContenedores = contenedorID; 
+    }
     
-    public long getEnvasesEstimadosTotal() { return envasesEstimadosTotal; }
-    public void setEnvasesEstimadosTotal(long envasesEstimadosTotal) { this.envasesEstimadosTotal = envasesEstimadosTotal; }
-    
-    public String getNotificacion() { return notificacion; }
-    public void setNotificacion(String notificacion) { this.notificacion = notificacion; }
+	public int getTotalEnvasesEstimados() {
+		return totalEnvasesEstimados;
+	}
+	public void setTotalEnvasesEstimados(int totalEnvasesEstimados) {
+		this.totalEnvasesEstimados = totalEnvasesEstimados;
+	}
+	
+	public String getAsignador() {
+		return asignador;
+	}
+	public void setAsignador(String asignador) {
+		this.asignador = asignador;
+	}
+	
+	public boolean getNotificacion() {
+		return notificacion;
+	}
+	public void setNotificacion(boolean notificacion) {
+		this.notificacion = notificacion;
+	}
 }

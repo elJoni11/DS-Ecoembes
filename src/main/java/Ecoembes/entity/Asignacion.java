@@ -1,81 +1,83 @@
 package Ecoembes.entity;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
 
 public class Asignacion {
 
-	// Atributos de Identificación y Trazabilidad
-    private String asignacionID;        // Identificador único de la asignación.
-    private LocalDateTime fechaAsignacion; // Momento exacto en que se realiza la asignación.
+	private String asignacionID;
+    private String plantaID;
+    private LocalDate fechaPrevista;
+    private List<Contenedor> listaContenedores;
+    private int totalEnvasesEstimados;
+    private String asignador;
+    private boolean notificacion;
 
-    // Atributos de Relación (Foreign Keys)
-    private String contenedorID;        // ID del Contenedor asignado (o se podría usar una lista de IDs).
-    private String plantaID;            // ID de la Planta de reciclaje destino.
-    private Long empleadoID;            // ID del Empleado que realizó la asignación (para auditoría).
-
-    // Atributos de Resumen/Datos Operacionales
-    private long envasesEstimadosTotal; // Cantidad total de envases asignados (requerido para la notificación).
-    private String notificacion;        // El contenido de la notificación enviada a la planta.
-
-
-    // --- Constructor Completo ---
-    /**
-     * Constructor para registrar una asignación.
-     */
-    public Asignacion(String asignacionID, LocalDateTime fechaAsignacion, String contenedorID, String plantaID, 
-                      Long empleadoID, long envasesEstimadosTotal, String notificacion) {
+    /** Constructor para registrar una asignación */
+    public Asignacion(String asignacionID, String plantaID, LocalDate fechaPrevista, List<Contenedor> listaContenedores, 
+    		int totalEnvasesEstimados, String asignador, boolean notificacion) {
         this.asignacionID = asignacionID;
-        this.fechaAsignacion = fechaAsignacion;
-        this.contenedorID = contenedorID;
         this.plantaID = plantaID;
-        this.empleadoID = empleadoID;
-        this.envasesEstimadosTotal = envasesEstimadosTotal;
+        this.fechaPrevista = fechaPrevista;
+        this.listaContenedores = listaContenedores;
+        this.totalEnvasesEstimados = totalEnvasesEstimados;
+        this.asignador = asignador;
         this.notificacion = notificacion;
+    }
+
+    // Getters (Métodos de acceso)
+    public String getAsignacionID() { 
+    	return asignacionID; 
     }
     
-    // --- Constructor Básico (para crear el objeto antes de tener el ID) ---
-    public Asignacion(LocalDateTime fechaAsignacion, String contenedorID, String plantaID, 
-                      Long empleadoID, long envasesEstimadosTotal, String notificacion) {
-        this.fechaAsignacion = fechaAsignacion;
-        this.contenedorID = contenedorID;
-        this.plantaID = plantaID;
-        this.empleadoID = empleadoID;
-        this.envasesEstimadosTotal = envasesEstimadosTotal;
-        this.notificacion = notificacion;
+    public String getPlantaID() { 
+    	return plantaID; 
+    }
+    
+    public LocalDate getFechaPrevista() { 
+    	return fechaPrevista; 
+    }
+    
+    public List<Contenedor> getListaContenedores() {
+    	return listaContenedores;
+    }
+    
+	public int getTotalEnvasesEstimados() {
+		return totalEnvasesEstimados;
+	}
+    
+	public String getAsignador() {
+		return asignador;
+	}
+	
+	public boolean getNotificacion() {
+		return notificacion;
+	}
+
+    // Setters (Métodos de modificación)
+    public void setAsignacionID(String asignacionID) { 
+    	this.asignacionID = asignacionID; 
+    }
+    
+    public void setPlantaID(String plantaID) {
+    	this.plantaID = plantaID; 
     }
 
+	public void setFechaPrevista(LocalDate fechaPrevista) {
+		this.fechaPrevista = fechaPrevista;
+	}
 
-    // --- Getters (Métodos de acceso) ---
-    public String getAsignacionID() { return asignacionID; }
-    public LocalDateTime getFechaAsignacion() { return fechaAsignacion; }
-    public String getContenedorID() { return contenedorID; }
-    public String getPlantaID() { return plantaID; }
-    public Long getEmpleadoID() { return empleadoID; }
-    public long getEnvasesEstimadosTotal() { return envasesEstimadosTotal; }
-    public String getNotificacion() { return notificacion; }
-
-
-    // --- Setters (Métodos de modificación) ---
-    public void setAsignacionID(String asignacionID) { this.asignacionID = asignacionID; }
-    public void setFechaAsignacion(LocalDateTime fechaAsignacion) { this.fechaAsignacion = fechaAsignacion; }
-    public void setContenedorID(String contenedorID) { this.contenedorID = contenedorID; }
-    public void setPlantaID(String plantaID) { this.plantaID = plantaID; }
-    public void setEmpleadoID(Long empleadoID) { this.empleadoID = empleadoID; }
-    public void setEnvasesEstimadosTotal(long envasesEstimadosTotal) { this.envasesEstimadosTotal = envasesEstimadosTotal; }
-    public void setNotificacion(String notificacion) { this.notificacion = notificacion; }
-
-
-    // --- Método toString (Útil para imprimir el objeto) ---
+    // Método toString
     @Override
     public String toString() {
         return "Asignacion{" +
                "asignacionID='" + asignacionID + '\'' +
-               ", fecha=" + fechaAsignacion.toLocalDate() + // Solo la fecha es más limpia
-               ", empleadoID=" + empleadoID +
                ", plantaID='" + plantaID + '\'' +
-               ", totalEnvases=" + envasesEstimadosTotal +
+               ", fecha=" + fechaPrevista + 
+               ", listaContenedores=" + listaContenedores.size() +
+               ", totalEnvasesEstimados=" + totalEnvasesEstimados +
+               ", asignador='" + asignador + '\'' +
+               ", notificacion=" + notificacion +
                '}';
     }
-
 }

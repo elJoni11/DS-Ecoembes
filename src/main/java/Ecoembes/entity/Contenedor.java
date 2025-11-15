@@ -1,38 +1,36 @@
 package Ecoembes.entity;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Contenedor {
 
-    // Atributos de identificación y ubicación
-    private String contenedorId; // Identificador único del contenedor
-    private String ubicacion;    // Dirección del contenedor
-    private int capacidad;     // Capacidad inicial
-    private int codPostal;      // Necesario para la consulta por zona
+    private String contenedorId;
+    private String ubicacion;
+    private int capacidad;
+    private int codPostal;
+    private LocalDateTime fechaConsulta; // Simulada a las 3:00
+    private int envasesEstimados;
+    private NivelLlenado nivelLlenado;
+    private Map<LocalDate, NivelLlenado> historico = new ConcurrentHashMap<>();
 
-    // Atributos dinámicos (estado actual reportado por el sensor)
-    private LocalDate fechaActualizada; // Fecha de la última actualización del sensor (simulada a las 3:00)
-    private int envasesEstimados;        // Número estimado de envases que contiene
-    private NivelLlenado nivelLlenado; // Estado actual (Verde, Naranja o Rojo)
-
-
-    // --- Constructor Completo ---
-    /**
-     * Constructor para crear/inicializar un Contenedor.
-     */
+    /** Constructor para crear/inicializar un Contenedor **/
     public Contenedor(String contenedorId, String ubicacion, int capacidad, int codPostal,
-                      LocalDate fechaActualizada, int envasesEstimados, NivelLlenado nivelLlenado) {
+                      LocalDateTime fechaConsulta, int envasesEstimados, NivelLlenado nivelLlenado, Map<LocalDate, NivelLlenado> historico) {
         this.contenedorId = contenedorId;
         this.ubicacion = ubicacion;
         this.capacidad = capacidad;
         this.codPostal = codPostal;
-        this.fechaActualizada = fechaActualizada;
+        this.fechaConsulta = fechaConsulta;
         this.envasesEstimados = envasesEstimados;
         this.nivelLlenado = nivelLlenado;
+        this.historico = historico;
     }
 
 
-    // --- Getters (Métodos de acceso) ---
+    // Getters
     public String getContenedorId() {
         return contenedorId;
     }
@@ -49,8 +47,8 @@ public class Contenedor {
         return codPostal;
     }
 
-    public LocalDate getFechaActualizada() {
-        return fechaActualizada;
+    public LocalDateTime getFechaConsulta() {
+        return fechaConsulta;
     }
 
     public int getEnvasesEstimados() {
@@ -60,11 +58,15 @@ public class Contenedor {
     public NivelLlenado getNivelLlenado() {
         return nivelLlenado;
     }
+    
+	public Map<LocalDate, NivelLlenado> getHistorico() {
+		return historico;
+	}
 
-    // --- Setters (Métodos de modificación) ---
+    // Setters para datos dinámicos
     // Usado para la actualización del sensor diario.
-    public void setFechaActualizada(LocalDate fechaActualizada) {
-        this.fechaActualizada = fechaActualizada;
+    public void setFechaConsulta(LocalDateTime fechaConsulta) {
+        this.fechaConsulta = fechaConsulta;
     }
 
     // Usado para la actualización del sensor diario.
@@ -93,9 +95,12 @@ public class Contenedor {
     public void setCodPostal(int codPostal) {
         this.codPostal = codPostal;
     }
+    
+	public void setHistorico(Map<LocalDate, NivelLlenado> historico) {
+		this.historico = historico;
+	}
 
-
-    // --- Método toString (Útil para imprimir el objeto) ---
+    // Método toString
     @Override
     public String toString() {
         return "Contenedor{" +
@@ -103,11 +108,10 @@ public class Contenedor {
                ", ubicacion='" + ubicacion + '\'' +
                ", capacidad=" + capacidad +
                ", codPostal=" + codPostal +
-               ", fechaActualizada=" + fechaActualizada +
+               ", fechaConsulta=" + fechaConsulta +
                ", envasesEstimados=" + envasesEstimados +
                ", nivelLlenado=" + nivelLlenado +
+               ", historico=" + historico +
                '}';
     }
 }
-
-
