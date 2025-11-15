@@ -1,4 +1,4 @@
-package Ecoembes;
+package com.deusto.ecoembes;
 
 import Ecoembes.dto.ContenedorDTO;
 import Ecoembes.dto.EmpleadoDTO;
