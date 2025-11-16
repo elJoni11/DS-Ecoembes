@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotEmpty;
 
 public class CrearContenedorRequestDTO {
     @NotEmpty
-    private String contenedorID;
+    private String contenedorId;
     @NotEmpty
     private String ubicacion;
     @Min(1)
@@ -15,11 +15,11 @@ public class CrearContenedorRequestDTO {
     }
 
     // Getters y Setters
-    public String getContenedorID() {
-        return contenedorID;
+    public String getContenedorId() {
+        return contenedorId;
     }
-    public void setContenedorID(String contenedorID) {
-        this.contenedorID = contenedorID;
+    public void setContenedorId(String contenedorId) {
+        this.contenedorId = contenedorId;
     }
     public String getUbicacion() {
         return ubicacion;

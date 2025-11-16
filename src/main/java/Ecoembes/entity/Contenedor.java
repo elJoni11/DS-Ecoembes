@@ -28,6 +28,10 @@ public class Contenedor {
         this.nivelLlenado = nivelLlenado;
         this.historico = historico;
     }
+    
+    /** Constructor vacío **/
+	public Contenedor() {
+	}
 
     // Getters
     public String getContenedorId() {

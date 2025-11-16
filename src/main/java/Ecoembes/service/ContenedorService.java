@@ -1,102 +1,70 @@
 package Ecoembes.service;
 
+import Ecoembes.dto.AssemblerMethods;
 import Ecoembes.dto.ContenedorDTO;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import Ecoembes.dto.request.CrearContenedorRequestDTO;
+import Ecoembes.dto.request.ActualizarContenedorRequestDTO;
+import Ecoembes.entity.Contenedor;
+import Ecoembes.entity.NivelLlenado;
+import Ecoembes.repository.InMemoryDatabase;
 import org.springframework.stereotype.Service;
 
-/**
- * Servicio para la gestión de contenedores
- */
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
 public class ContenedorService {
-    
-    // Simulación de base de datos
-    private List<ContenedorDTO> contenedores = new ArrayList<>();
-    
-    public ContenedorService() {
-        // Datos de ejemplo
-        inicializarDatos();
+
+    private final InMemoryDatabase db;
+
+    public ContenedorService(InMemoryDatabase db) {
+        this.db = db;
     }
-    
-    private void inicializarDatos() {
-        // Añadir algunos contenedores de ejemplo
-        ContenedorDTO c1 = new ContenedorDTO();
-        c1.setContenedorID("CONT-001");
-        c1.setUbicacion("Calle Mayor 10");
-        c1.setCodPostal(28001);
-        c1.setCapacidad(1000);
-        c1.setEnvasesEstimados(450);
-        c1.setFechaActualizada(LocalDate.now());
-        contenedores.add(c1);
-    }
-    
-    /**
-     * Crea un nuevo contenedor
-     */
-    public ContenedorDTO crearContenedor(ContenedorDTO contenedor) {
-        // Generar ID si no existe
-        if (contenedor.getContenedorID() == null || contenedor.getContenedorID().isEmpty()) {
-            contenedor.setContenedorID("CONT-" + (contenedores.size() + 1));
+
+    public ContenedorDTO actualizarEstado(String id, ActualizarContenedorRequestDTO update) {
+        Contenedor c = db.contenedores.get(id);
+        if (c == null) {
+            throw new RuntimeException("Contenedor no encontrado"); // Será 404
         }
+        c.setFechaConsulta(LocalDateTime.now());
+        c.setEnvasesEstimados(update.getEnvasesEstimados());
+        c.setNivelLlenado(update.getNivelLlenado());
+        c.getHistorico().put(LocalDate.now(), update.getNivelLlenado());
         
-        // Establecer fecha de actualización
-        contenedor.setFechaActualizada(LocalDate.now());
-        
-        // Guardar en la "base de datos"
-        contenedores.add(contenedor);
-        
-        return contenedor;
+        System.out.printf("[SENSOR] Contenedor %s actualizado: Nivel %s%n", id, update.getNivelLlenado());
+        return AssemblerMethods.toContenedorDTO(c);
     }
-    
-    /**
-     * Actualiza un contenedor existente
-     */
-    public ContenedorDTO actualizarContenedor(ContenedorDTO contenedor) {
-        for (int i = 0; i < contenedores.size(); i++) {
-            if (contenedores.get(i).getContenedorID().equals(contenedor.getContenedorID())) {
-                contenedor.setFechaActualizada(LocalDate.now());
-                contenedores.set(i, contenedor);
-                return contenedor;
-            }
+
+    public ContenedorDTO crearContenedor(CrearContenedorRequestDTO request) {
+        if (db.contenedores.containsKey(request.getContenedorId())) {
+            throw new RuntimeException("ID de contenedor duplicado"); // Será 400
         }
-        throw new IllegalArgumentException("Contenedor no encontrado: " + contenedor.getContenedorID());
+        Contenedor contenedor = new Contenedor();
+        contenedor.setContenedorId(request.getContenedorId());
+        contenedor.setUbicacion(request.getUbicacion());
+        contenedor.setCapacidad(request.getCapacidad());
+        
+        db.contenedores.put(contenedor.getContenedorId(), contenedor);
+        return AssemblerMethods.toContenedorDTO(contenedor);
     }
-    
-    /**
-     * Obtiene contenedores por código postal (zona)
-     */
-    public List<ContenedorDTO> getContenedoresByZona(int codPostal) {
-        return contenedores.stream()
-            .filter(c -> c.getCodPostal() == codPostal)
-            .collect(Collectors.toList());
+
+    public List<ContenedorDTO> getContenedores() {
+        return db.contenedores.values().stream()
+                .map(AssemblerMethods::toContenedorDTO)
+                .collect(Collectors.toList());
     }
-    
-    /**
-     * Obtiene contenedores actualizados en una fecha específica
-     */
-    public List<ContenedorDTO> getContenedorByFecha(LocalDate fecha) {
-        return contenedores.stream()
-            .filter(c -> c.getFechaActualizada() != null && c.getFechaActualizada().equals(fecha))
-            .collect(Collectors.toList());
-    }
-    
-    /**
-     * Obtiene un contenedor por ID
-     */
-    public ContenedorDTO getContenedorById(String id) {
-        return contenedores.stream()
-            .filter(c -> c.getContenedorID().equals(id))
-            .findFirst()
-            .orElse(null);
-    }
-    
-    /**
-     * Obtiene todos los contenedores
-     */
-    public List<ContenedorDTO> getAllContenedores() {
-        return new ArrayList<>(contenedores);
+
+    public Map<LocalDate, NivelLlenado> getHistorialContenedor(String id, LocalDate fechaConsulta) {
+        Contenedor c = db.contenedores.get(id);
+        if (c == null) {
+            throw new RuntimeException("Contenedor no encontrado"); // Será 404
+        }
+        // Devuelve historial DESDE la fechaConsulta (incluida)
+        return c.getHistorico().entrySet().stream()
+                .filter(entry -> !entry.getKey().isBefore(fechaConsulta))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

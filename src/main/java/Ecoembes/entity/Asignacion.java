@@ -24,6 +24,10 @@ public class Asignacion {
         this.asignador = asignador;
         this.notificacion = notificacion;
     }
+    
+    /** Constructor vacío **/
+	public Asignacion() {
+	}
 
     // Getters (Métodos de acceso)
     public String getAsignacionID() { 
@@ -65,6 +69,22 @@ public class Asignacion {
 
 	public void setFechaPrevista(LocalDate fechaPrevista) {
 		this.fechaPrevista = fechaPrevista;
+	}
+	
+	public void setListaContenedores(List<Contenedor> listaContenedores) {
+		this.listaContenedores = listaContenedores;
+	}
+	
+	public void setTotalEnvasesEstimados(int totalEnvasesEstimados) {
+		this.totalEnvasesEstimados = totalEnvasesEstimados;
+	}
+	
+	public void setAsignador(String asignador) {
+			this.asignador = asignador;
+	}
+	
+	public void setNotificacion(boolean notificacion) {
+		this.notificacion = notificacion;
 	}
 
     // Método toString
