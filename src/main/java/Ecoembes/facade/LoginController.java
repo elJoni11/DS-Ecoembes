@@ -24,7 +24,6 @@ public class LoginController {
     
     private LoginService loginService;
     
-    /** Constructor con inyección de dependencias **/
     public LoginController(LoginService loginService) {
         this.loginService = loginService;
     }

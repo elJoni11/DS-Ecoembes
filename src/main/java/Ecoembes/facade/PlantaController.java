@@ -18,7 +18,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-@Tag(name = "3. PlantaController", description = "Gestión de las plantas de reciclaje")
+@Tag(name = "PlantaController", description = "Gestión de las plantas de reciclaje")
 public class PlantaController {
 
     private final PlantaService plantaService;

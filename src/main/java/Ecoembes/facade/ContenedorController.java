@@ -24,7 +24,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/contenedor")
-@Tag(name = "2. ContenedorController", description = "Gestión de los contenedores de reciclaje")
+@Tag(name = "ContenedorController", description = "Gestión de los contenedores de reciclaje")
 public class ContenedorController {
 
     private final ContenedorService contenedorService;
