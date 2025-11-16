@@ -9,12 +9,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
     // Escaneamos TODOS los paquetes de tu proyecto
     scanBasePackages = {
         "com.deusto.ecoembes", // El paquete principal
-        "config",              // Los otros paquetes
-        "repository",
-        "entity",
-        "dto",
-        "service",
-        "facade"
+        "Ecoembes.config",              // Los otros paquetes
+        "Ecoembes.repository",
+        "Ecoembes.entity",
+        "Ecoembes.dto",
+        "Ecoembes.service",
+        "Ecoembes.facade"
     }
 )
 
