@@ -35,14 +35,14 @@ public class ContenedorController {
         this.loginService = loginService;
     }
 
-    @Operation(summary = "(Sensor) Actualización de estado del contenedor",
+    @Operation(summary = "Actualización de estado del contenedor",
                description = "Invocada por el sensor para reportar su estado.")
     @ApiResponse(responseCode = "200", description = "Estado actualizado con éxito.")
     @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos.", content = @Content)
     @ApiResponse(responseCode = "404", description = "Contenedor no encontrado.", content = @Content)
-    @PutMapping("/{id_contenedor}/estado")
+    @PutMapping("/{contenedorId}/estado")
     public ResponseEntity<ContenedorDTO> actualizarEstado(
-            @PathVariable("id_contenedor") String id,
+            @PathVariable("contenedorId") String id,
             @Valid @RequestBody ActualizarContenedorRequestDTO update) {
         // Este endpoint (simulación de sensor) no requiere token de empleado
         return ResponseEntity.ok(contenedorService.actualizarEstado(id, update));
@@ -62,7 +62,7 @@ public class ContenedorController {
         return new ResponseEntity<>(nuevo, HttpStatus.CREATED);
     }
 
-    @Operation(summary = "(Personal) Descargar información de contenedores",
+    @Operation(summary = "Descargar información de contenedores",
                description = "Descarga la información actualizada de todos los contenedores.")
     @Parameter(in = ParameterIn.QUERY, name = "token", required = true)
     @ApiResponse(responseCode = "200", description = "Lista de contenedores devuelta.")
@@ -74,20 +74,20 @@ public class ContenedorController {
         return ResponseEntity.ok(contenedorService.getContenedores());
     }
 
-    @Operation(summary = "(Personal) Consulta del historial de un contenedor",
+    @Operation(summary = "Consulta del historial de un contenedor",
                description = "Consulta el historial desde una fecha específica (YYYY-MM-DD).")
     @Parameter(in = ParameterIn.QUERY, name = "token", required = true)
     @ApiResponse(responseCode = "200", description = "Historial devuelto con éxito.")
     @ApiResponse(responseCode = "400", description = "Fecha inválida.", content = @Content)
     @ApiResponse(responseCode = "401", description = "Token inválido.", content = @Content)
     @ApiResponse(responseCode = "404", description = "Contenedor no encontrado.", content = @Content)
-    @GetMapping("/{contenedorID}/historial")
+    @GetMapping("/{contenedorId}/historial")
     public ResponseEntity<Map<LocalDate, NivelLlenado>> getHistorial(
             @RequestParam("token") String token,
-            @PathVariable String contenedorID,
+            @PathVariable String contenedorId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaConsulta) {
         loginService.validateAndGetUserEmail(token);
-        Map<LocalDate, NivelLlenado> historial = contenedorService.getHistorialContenedor(contenedorID, fechaConsulta);
+        Map<LocalDate, NivelLlenado> historial = contenedorService.getHistorialContenedor(contenedorId, fechaConsulta);
         return ResponseEntity.ok(historial);
     }
 }

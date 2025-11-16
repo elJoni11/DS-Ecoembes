@@ -29,7 +29,7 @@ public class PlantaController {
         this.loginService = loginService;
     }
 
-    @Operation(summary = "(Personal) Consultar lista de plantas de reciclaje")
+    @Operation(summary = "Consultar lista de plantas de reciclaje")
     @Parameter(in = ParameterIn.QUERY, name = "token", required = true)
     @ApiResponse(responseCode = "200", description = "Lista de plantas devuelta.")
     @ApiResponse(responseCode = "401", description = "Token inválido.", content = @Content)
@@ -39,7 +39,7 @@ public class PlantaController {
         return ResponseEntity.ok(plantaService.getAllPlantas());
     }
 
-    @Operation(summary = "(Personal) Consultar capacidad disponible de una planta",
+    @Operation(summary = "Consultar capacidad disponible de una planta",
                description = "Consulta la capacidad (en toneladas) para un día específico (YYYY-MM-DD).")
     @Parameter(in = ParameterIn.QUERY, name = "token", required = true)
     @ApiResponse(responseCode = "200", description = "Capacidad devuelta.")
