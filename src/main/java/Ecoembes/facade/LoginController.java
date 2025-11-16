@@ -1,63 +1,52 @@
 package Ecoembes.facade;
 
+import Ecoembes.dto.request.LoginRequestDTO;
 import Ecoembes.service.LoginService;
-import Ecoembes.dto.EmpleadoDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
 
 /**
  * Controller para gestión de login y tokens (Patrón Facade)
  * Proporciona una interfaz simplificada para las operaciones de autenticación
- */
+ **/
 @RestController
 @RequestMapping("/api/login")
+@Tag(name = "LoginController", description = "Gestión de la sesión del personal de Ecoembes")
 public class LoginController {
     
     private LoginService loginService;
     
-    /**
-     * Constructor con inyección de dependencias
-     */
+    /** Constructor con inyección de dependencias **/
     public LoginController(LoginService loginService) {
         this.loginService = loginService;
     }
     
-    /**
-     * Constructor por defecto
-     */
-    public LoginController() {
-        this.loginService = new LoginService();
-    }
-    
-    /**
-     * Valida si un token de sesión es válido
-     * @param token token a validar
-     * @return true si el token es válido, false en caso contrario
-     */
-    @GetMapping("/validarToken")
-    public boolean validarToken(@RequestHeader("X-Auth-Token") String token) {
-    	
-    	// La lógica de la Facade aquí es delegar directamente al servicio
-        boolean esValido = loginService.validarToken(token);
-        
-        if (!esValido) {
-            // Si no es válido, lanzamos una excepción de seguridad. 
-            // Spring la mapeará a un error HTTP 401 Unauthorized o 403 Forbidden.
-            throw new SecurityException("Token inválido o expirado");
-        }
-        
-        return true; // Devuelve 'true' y HTTP 200 OK si es válido
-    }
-
-    /**
-     * Obtiene el ID del empleado asociado a un token
-     * @param token token de sesión
-     * @return ID del empleado o null si el token no es válido
-     */
-    @GetMapping("/empleadoId")
-    public Long getEmpleadoIdFromToken(@RequestHeader("X-Auth-Token") String token) {
-    	if (!loginService.validarToken(token)) {
-            throw new SecurityException("Token inválido o expirado");
-        }
-        return loginService.getEmpleadoIdFromToken(token);
-    }
+    @Operation(summary = "Inicio de sesión del empleado",
+            description = "Autentica y genera un token de sesión (timestamp).")
+	 @ApiResponse(responseCode = "200", description = "Login correcto. Devuelve el TOKEN.")
+	 @ApiResponse(responseCode = "401", description = "Credenciales inválidas.", content = @Content)
+	 @PostMapping("/iniciarSesion")
+	 public ResponseEntity<Map<String, String>> iniciarSesion(@Valid @RequestBody LoginRequestDTO loginRequest) {
+	     String token = loginService.autenticar(loginRequest.getEmail(), loginRequest.getPassword());
+	     return ResponseEntity.ok(Map.of("token", token));
+	 }
+	
+	 @Operation(summary = "Cierre de sesión del empleado",
+	            description = "Invalida el token de sesión actual.")
+	 @Parameter(in = ParameterIn.QUERY, name = "token", required = true, description = "Token de sesión")
+	 @ApiResponse(responseCode = "204", description = "Logout correcto.")
+	 @ApiResponse(responseCode = "401", description = "Token inválido o no proporcionado.", content = @Content)
+	 @PostMapping("/cerrarSesion")
+	 public ResponseEntity<Void> cerrarSesion(@RequestParam("token") String token) {
+	     loginService.cerrarSesion(token);
+	     return ResponseEntity.noContent().build();
+	 }
 }
