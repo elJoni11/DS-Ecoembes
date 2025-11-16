@@ -29,7 +29,6 @@ public class Contenedor {
         this.historico = historico;
     }
 
-
     // Getters
     public String getContenedorId() {
         return contenedorId;

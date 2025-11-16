@@ -1,90 +1,60 @@
 package com.deusto.ecoembes;
 
-import Ecoembes.dto.ContenedorDTO;
-import Ecoembes.dto.EmpleadoDTO;
-import Ecoembes.entity.NivelLlenado;
-import Ecoembes.facade.*;
-import Ecoembes.service.*;
+import Ecoembes.entity.*;
+import Ecoembes.repository.InMemoryDatabase;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.concurrent.ConcurrentHashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+@Component
+public class DataInitializer implements CommandLineRunner {
 
-@Configuration
-public class DataInitializer {
-  
-	private static final Logger logger = LoggerFactory.getLogger(DataInitializer.class);
-    
-	@Bean
-	CommandLineRunner initData(
-            EmpleadoController empleadoController, 
-            ContenedorController contenedorController,
-            PlantaService plantaService
-    ) {
-        return args -> {	
-            logger.info("=================================================");
-            logger.info("🌱 INICIALIZANDO DATOS DE PRUEBA ECOEMBES...");
-            logger.info("=================================================");
-       
-            inicializarContenedores(contenedorController);
-            simularLoginLogout(empleadoController);
-            
-            logger.info("=================================================");
-            logger.info("✅ DATOS DE PRUEBA CARGADOS. API lista.");
-            logger.info("=================================================");
-        };
-	}
+    private final InMemoryDatabase db;
 
-    private void inicializarContenedores(ContenedorController contenedorController) {
-        logger.info("   > Creando contenedores de prueba...");
-        
-        ContenedorDTO c1 = crearContenedor("C/ Sol, 12", 28001, 1000, 300, NivelLlenado.BAJO);
-        ContenedorDTO c2 = crearContenedor("Av. America, 5", 28002, 1500, 700, NivelLlenado.MEDIO);
-        contenedorController.CrearContenedor(c1);
-        contenedorController.CrearContenedor(c2);
-    }
-    
-    private ContenedorDTO crearContenedor(String ubicacion, int codPostal, int capacidad, int estimados, NivelLlenado nivel) {
-        ContenedorDTO c = new ContenedorDTO();
-        c.setUbicacion(ubicacion);
-        c.setCodPostal(codPostal);
-        c.setCapacidad(capacidad);
-        c.setEnvasesEstimados(estimados);
-        c.setNivelLlenado(nivel);
-        return c;
+    public DataInitializer(InMemoryDatabase db) {
+        this.db = db;
     }
 
-    /**
-     * Simula el flujo de login y logout para verificar la llamada al Controller.
-     */
-    private void simularLoginLogout(EmpleadoController empleadoController) {
-        
-        logger.info("   > Simulación: Login y Logout de prueba.");
-        String email = "juan@ecoembes.com";
-        String password = "admin123";
-        String token = null;
+    @Override
+    public void run(String... args) throws Exception {
+        // --- Cargar Empleados ---
+        Empleado emp1 = new Empleado("emp-001", "Admin Ecoembes", "admin@ecoembes.com", "password123");
+        db.empleados.put(emp1.getEmail(), emp1);
 
-        try {
-            // CORRECCIÓN APLICADA: Creamos el objeto Credenciales explícitamente.
-            EmpleadoController.EmpleadoCredenciales credenciales = new EmpleadoController.EmpleadoCredenciales();
-            credenciales.setEmail(email);
-            credenciales.setPassword(password);
+        // --- Cargar Plantas ---
+        Planta p1 = new Planta("planta-01", "PlasSB Ltd.", "Polígono Industrial Sur, Badajoz", new ConcurrentHashMap<>());
+        Planta p2 = new Planta("planta-02", "ContSocket Ltd.", "Polígono Industrial Norte, Cáceres", new ConcurrentHashMap<>());
 
-            token = empleadoController.IniciarSesion(credenciales);
-            logger.info("   > Login exitoso (Token: {}...).", token.substring(0, 10));
-            
-            empleadoController.CerrarSesion(token);
-            logger.info("   > Logout exitoso.");
-
-        } catch (Exception e) {
-            logger.error("❌ Fallo en la simulación de autenticación: {}", e.getMessage());
+        // Simular capacidad para los próximos 10 días
+        for (int i = 0; i < 10; i++) {
+            LocalDate fecha = LocalDate.now().plusDays(i);
+            p1.getCapacidadDeterminada().put(fecha, 100); // 100 toneladas
+            p2.getCapacidadDeterminada().put(fecha, 75);  // 75 toneladas
         }
+        db.plantas.put(p1.getPlantaID(), p1);
+        db.plantas.put(p2.getPlantaID(), p2);
+
+        // --- Cargar Contenedores ---
+        Contenedor c1 = new Contenedor("cont-A001", "Calle Mayor, 1, Madrid", 10, 48380,
+                LocalDateTime.now().minusDays(1), 500, NivelLlenado.NARANJA, new ConcurrentHashMap<>());
+        c1.getHistorico().put(LocalDate.now().minusDays(2), NivelLlenado.VERDE);
+        c1.getHistorico().put(LocalDate.now().minusDays(1), NivelLlenado.NARANJA);
+
+
+        Contenedor c2 = new Contenedor("cont-B002", "Plaza del Sol, 5, Madrid", 12, 48420,
+                LocalDateTime.now().minusDays(1), 950, NivelLlenado.ROJO, new ConcurrentHashMap<>());
+        c2.getHistorico().put(LocalDate.now().minusDays(2), NivelLlenado.NARANJA);
+        c2.getHistorico().put(LocalDate.now().minusDays(1), NivelLlenado.ROJO);
+
+        Contenedor c3 = new Contenedor("cont-C003", "Avenida del Puerto, 20, Valencia", 10, 48850,
+                LocalDateTime.now().minusDays(1), 150, NivelLlenado.VERDE, new ConcurrentHashMap<>());
+        c3.getHistorico().put(LocalDate.now().minusDays(1), NivelLlenado.VERDE);
+
+        db.contenedores.put(c1.getContenedorId(), c1);
+        db.contenedores.put(c2.getContenedorId(), c2);
+        db.contenedores.put(c3.getContenedorId(), c3);
     }
 }
