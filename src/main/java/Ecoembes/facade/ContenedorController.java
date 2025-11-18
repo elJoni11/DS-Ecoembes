@@ -77,6 +77,7 @@ public class ContenedorController {
     @Operation(summary = "Consulta del historial de un contenedor",
                description = "Consulta el historial desde una fecha específica (YYYY-MM-DD).")
     @Parameter(in = ParameterIn.QUERY, name = "token", required = true)
+    @Parameter(in = ParameterIn.PATH, name = "contenedorId", required = true)
     @ApiResponse(responseCode = "200", description = "Historial devuelto con éxito.")
     @ApiResponse(responseCode = "400", description = "Fecha inválida.", content = @Content)
     @ApiResponse(responseCode = "401", description = "Token inválido.", content = @Content)

@@ -42,6 +42,7 @@ public class PlantaController {
     @Operation(summary = "Consultar capacidad disponible de una planta",
                description = "Consulta la capacidad (en toneladas) para un día específico (YYYY-MM-DD).")
     @Parameter(in = ParameterIn.QUERY, name = "token", required = true)
+    @Parameter(in = ParameterIn.PATH, name = "plantaID", required = true)
     @ApiResponse(responseCode = "200", description = "Capacidad devuelta.")
     @ApiResponse(responseCode = "400", description = "Fecha inválida.", content = @Content)
     @ApiResponse(responseCode = "401", description = "Token inválido.", content = @Content)
