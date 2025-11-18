@@ -50,7 +50,8 @@ public class PlantaController {
     public ResponseEntity<Map<String, Integer>> getCapacidadPlanta(
             @RequestParam("token") String token,
             @PathVariable String plantaID,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+            @RequestParam (name = "fecha")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
         loginService.validateAndGetUserEmail(token);
         Integer capacidad = plantaService.getCapacidadPlanta(plantaID, fecha);
         return ResponseEntity.ok(Map.of("capacidad", capacidad));

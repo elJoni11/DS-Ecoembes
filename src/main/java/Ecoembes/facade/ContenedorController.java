@@ -85,7 +85,8 @@ public class ContenedorController {
     public ResponseEntity<Map<LocalDate, NivelLlenado>> getHistorial(
             @RequestParam("token") String token,
             @PathVariable String contenedorId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaConsulta) {
+            @RequestParam(name = "fechaConsulta")
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaConsulta) {
         loginService.validateAndGetUserEmail(token);
         Map<LocalDate, NivelLlenado> historial = contenedorService.getHistorialContenedor(contenedorId, fechaConsulta);
         return ResponseEntity.ok(historial);
