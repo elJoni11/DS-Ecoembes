@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -86,9 +87,9 @@ public class ContenedorController {
     public ResponseEntity<Map<LocalDate, NivelLlenado>> getHistorial(
             @RequestParam("token") String token,
             @PathVariable String contenedorId,
-            @RequestParam(name = "fechaConsulta")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaConsulta) {
+            @RequestParam(name = "fechaConsulta") String fechaString) { 
         loginService.validateAndGetUserEmail(token);
+        LocalDate fechaConsulta = LocalDate.parse(fechaString, DateTimeFormatter.ISO_DATE);
         Map<LocalDate, NivelLlenado> historial = contenedorService.getHistorialContenedor(contenedorId, fechaConsulta);
         return ResponseEntity.ok(historial);
     }

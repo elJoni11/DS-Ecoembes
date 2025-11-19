@@ -1,6 +1,6 @@
 package Ecoembes.facade;
 
-import Ecoembes.dto.PlantaDTO;
+import Ecoembes.dto.PlantaDTO; 
 import Ecoembes.service.LoginService;
 import Ecoembes.service.PlantaService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,6 +13,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -51,9 +52,9 @@ public class PlantaController {
     public ResponseEntity<Map<String, Integer>> getCapacidadPlanta(
             @RequestParam("token") String token,
             @PathVariable String plantaID,
-            @RequestParam (name = "fecha")
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha) {
+            @RequestParam(name = "fecha") String fechaString) {
         loginService.validateAndGetUserEmail(token);
+        LocalDate fecha = LocalDate.parse(fechaString, DateTimeFormatter.ISO_DATE);
         Integer capacidad = plantaService.getCapacidadPlanta(plantaID, fecha);
         return ResponseEntity.ok(Map.of("capacidad", capacidad));
     }
