@@ -9,11 +9,8 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -54,8 +51,8 @@ public class PlantaController {
             @PathVariable String plantaID,
             @RequestParam(name = "fecha") String fechaString) {
         loginService.validateAndGetUserEmail(token);
-        LocalDate fecha = LocalDate.parse(fechaString, DateTimeFormatter.ISO_DATE);
-        Integer capacidad = plantaService.getCapacidadPlanta(plantaID, fecha);
+        
+        Integer capacidad = plantaService.getCapacidadPlanta(plantaID, fechaString);
         return ResponseEntity.ok(Map.of("capacidad", capacidad));
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -57,14 +58,21 @@ public class ContenedorService {
                 .collect(Collectors.toList());
     }
 
-    public Map<LocalDate, NivelLlenado> getHistorialContenedor(String id, LocalDate fechaConsulta) {
+    public Map<LocalDate, NivelLlenado> getHistorialContenedor(String id, String fechaString) {
         Contenedor c = db.contenedores.get(id);
         if (c == null) {
             throw new RuntimeException("Contenedor no encontrado"); // Será 404
         }
-        // Devuelve historial DESDE la fechaConsulta (incluida)
-        return c.getHistorico().entrySet().stream()
+        
+        LocalDate fechaConsulta = LocalDate.parse(fechaString, DateTimeFormatter.ISO_DATE);
+        Map<LocalDate, NivelLlenado> historialFiltrado = c.getHistorico().entrySet().stream()
                 .filter(entry -> !entry.getKey().isBefore(fechaConsulta))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        if (historialFiltrado.isEmpty()) {
+             throw new IllegalArgumentException("Historial no encontrado para la fecha inicial: " + fechaConsulta);
+        }
+        
+        return historialFiltrado;
     }
 }

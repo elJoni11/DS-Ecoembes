@@ -1,6 +1,6 @@
 package Ecoembes.facade;
 
-import Ecoembes.dto.ContenedorDTO;
+import Ecoembes.dto.ContenedorDTO; 
 import Ecoembes.dto.request.ActualizarContenedorRequestDTO;
 import Ecoembes.dto.request.CrearContenedorRequestDTO;
 import Ecoembes.entity.NivelLlenado;
@@ -13,13 +13,11 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -89,8 +87,8 @@ public class ContenedorController {
             @PathVariable String contenedorId,
             @RequestParam(name = "fechaConsulta") String fechaString) { 
         loginService.validateAndGetUserEmail(token);
-        LocalDate fechaConsulta = LocalDate.parse(fechaString, DateTimeFormatter.ISO_DATE);
-        Map<LocalDate, NivelLlenado> historial = contenedorService.getHistorialContenedor(contenedorId, fechaConsulta);
+        
+        Map<LocalDate, NivelLlenado> historial = contenedorService.getHistorialContenedor(contenedorId, fechaString);
         return ResponseEntity.ok(historial);
     }
 }
