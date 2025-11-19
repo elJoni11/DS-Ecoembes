@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
@@ -28,12 +29,25 @@ public class DataInitializer implements CommandLineRunner {
         Planta p1 = new Planta("planta-01", "PlasSB Ltd.", "Polígono Industrial Sur, Badajoz", new ConcurrentHashMap<>());
         Planta p2 = new Planta("planta-02", "ContSocket Ltd.", "Polígono Industrial Norte, Cáceres", new ConcurrentHashMap<>());
 
-        // Simular capacidad para los próximos 10 días
+        // NUEVA LÓGICA: Usamos el formato ISO para garantizar la igualdad del objeto
+        LocalDate baseDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE; 
+
         for (int i = 0; i < 10; i++) {
-            LocalDate fecha = LocalDate.now().plusDays(i);
-            p1.getCapacidadDeterminada().put(fecha, 100); // 100 toneladas
-            p2.getCapacidadDeterminada().put(fecha, 75);  // 75 toneladas
+            // 1. Obtenemos la fecha (ej. 2025-11-19)
+            LocalDate dateObj = baseDate.plusDays(i);
+            
+            // 2. Convertimos a String canónico (ej. "2025-11-19")
+            String dateString = dateObj.format(formatter); 
+            
+            // 3. Re-parseamos el String para crear la clave del mapa (mapKey) 
+            //    Esto garantiza que el objeto sea idéntico al que crea el controlador desde la URL.
+            LocalDate mapKey = LocalDate.parse(dateString, formatter);
+            
+            p1.getCapacidadDeterminada().put(mapKey, 100);
+            p2.getCapacidadDeterminada().put(mapKey, 75);
         }
+        
         db.plantas.put(p1.getPlantaID(), p1);
         db.plantas.put(p2.getPlantaID(), p2);
 
