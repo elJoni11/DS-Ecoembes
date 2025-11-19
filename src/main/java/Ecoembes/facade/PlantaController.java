@@ -48,8 +48,8 @@ public class PlantaController {
     @GetMapping("/planta/{plantaID}/capacidad")
     public ResponseEntity<Map<String, Integer>> getCapacidadPlanta(
             @RequestParam("token") String token,
-            @PathVariable String plantaID,
-            @RequestParam(name = "fecha") String fechaString) {
+            @PathVariable("plantaID") String plantaID,
+            @RequestParam("fecha") String fechaString) {
         loginService.validateAndGetUserEmail(token);
         
         Integer capacidad = plantaService.getCapacidadPlanta(plantaID, fechaString);
