@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.1'
+	id 'org.springframework.boot' version '3.5.8'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -19,27 +19,15 @@ repositories {
 }
 
 dependencies {
-	// Esenciales para la API REST
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	//implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	
-	// Utilidad para que el servidor se reinicie solo al guardar cambios
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	//runtimeOnly 'com.h2database:h2'
-	
-	// Para tests (opcional pero bueno tenerlo)
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-	
-	// SpringDoc (Swagger) para la documentación de la API
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
-}
+	// Spring Boot Starter Web for building web applications
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-tasks.named('test') {
-	useJUnitPlatform()
-}
+	// SpringDoc OpenAPI UI Dependency this is needed to use Swagger annotations
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13'
+    
+	// Spring Boot Starter Data JPA for working with JPA and Hibernate
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'	
 
-tasks.named('compileJava') {
-    options.compilerArgs << "-parameters"
+	// H2 Database for in-memory database
+	runtimeOnly 'com.h2database:h2'
 }
