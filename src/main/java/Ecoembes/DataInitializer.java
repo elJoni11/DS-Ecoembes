@@ -1,4 +1,4 @@
-package com.deusto.ecoembes;
+package Ecoembes;
 
 import Ecoembes.entity.*;
 import Ecoembes.repository.InMemoryDatabase;
