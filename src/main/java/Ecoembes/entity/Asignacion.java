@@ -1,5 +1,4 @@
 package Ecoembes.entity;
-//Prueba manu
 
 import java.time.LocalDate;
 import java.util.List;

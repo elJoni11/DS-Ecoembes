@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentHashMap;
-
+//Comentario de prueba
 @Component
 public class DataInitializer implements CommandLineRunner {
 
