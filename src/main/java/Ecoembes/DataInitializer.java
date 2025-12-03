@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ConcurrentHashMap;
 
-//Comentario de prueba
 @Component
 public class DataInitializer implements CommandLineRunner {
 
@@ -38,9 +37,23 @@ public class DataInitializer implements CommandLineRunner {
 
         // --- Cargar Plantas ---
     	if (plantaRepository.count() == 0) {
-	    	Planta p1 = new Planta("planta-01", "PlasSB Ltd.", "Polígono Industrial Sur, Badajoz", new ConcurrentHashMap<>());
-	        Planta p2 = new Planta("planta-02", "ContSocket Ltd.", "Polígono Industrial Norte, Cáceres", new ConcurrentHashMap<>());
-	
+    		
+    		// 1. Crear Planta PlasSB (REST)
+            Planta p1 = new Planta(); // Usamos constructor vacío
+            p1.setPlantaID("planta-01");
+            p1.setNombre("PlasSB Ltd.");
+            p1.setUbicacion("Badajoz");
+            p1.setTipoComunicacion("REST");
+            p1.setUrlComunicacion("http://localhost:8081");
+	    	
+            // 2. Crear Planta ContSocket (Socket)
+            Planta p2 = new Planta(); // Usamos constructor vacío
+            p2.setPlantaID("planta-02");
+            p2.setNombre("ContSocket Ltd.");
+            p2.setUbicacion("Cáceres");
+            p2.setTipoComunicacion("SOCKET");
+            p2.setUrlComunicacion("localhost:9000");
+	    	
 	        // NUEVA LÓGICA: Usamos el formato ISO para garantizar la igualdad del objeto
 	        LocalDate baseDate = LocalDate.now();
 	        DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE; 
