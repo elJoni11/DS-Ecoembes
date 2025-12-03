@@ -3,7 +3,7 @@ package Ecoembes.service;
 import Ecoembes.dto.AssemblerMethods;
 import Ecoembes.dto.PlantaDTO;
 import Ecoembes.entity.Planta;
-import Ecoembes.repository.InMemoryDatabase;
+import Ecoembes.repository.PlantaRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,23 +16,21 @@ import java.util.stream.Collectors;
 @Service
 public class PlantaService {
 
-    private final InMemoryDatabase db;
+	private final PlantaRepository plantaRepository;
 
-    public PlantaService(InMemoryDatabase db) {
-        this.db = db;
+    public PlantaService(PlantaRepository plantaRepository) {
+    	this.plantaRepository = plantaRepository;
     }
 
     public List<PlantaDTO> getAllPlantas() {
-        return db.plantas.values().stream()
+        return plantaRepository.findAll().stream()
                 .map(AssemblerMethods::toPlantaDTO)
                 .collect(Collectors.toList());
     }
 
     public Integer getCapacidadPlanta(String id, String fechaString) {
-        Planta p = db.plantas.get(id);
-        if (p == null) {
-            throw new RuntimeException("Planta no encontrada: " + id);
-        }
+        Planta p = plantaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Planta no encontrada")); // 404
         
         LocalDate fecha = LocalDate.parse(fechaString, DateTimeFormatter.ISO_DATE);
         
@@ -56,6 +54,7 @@ public class PlantaService {
         System.out.println("==========================================\n");
         // -----------------------------------------------------------
 
+        // Búsqueda robusta en el mapa recuperado de BD
         Optional<Map.Entry<LocalDate, Integer>> entry = p.getCapacidadDeterminada().entrySet().stream()
                 .filter(e -> e.getKey().isEqual(fecha))
                 .findFirst();
