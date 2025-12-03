@@ -4,22 +4,24 @@ import Ecoembes.dto.AssemblerMethods;
 import Ecoembes.dto.PlantaDTO;
 import Ecoembes.entity.Planta;
 import Ecoembes.repository.PlantaRepository;
+import Ecoembes.gateway.PlantaGatewayFactory;
+import Ecoembes.gateway.PlantaGatewayInterface;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class PlantaService {
 
 	private final PlantaRepository plantaRepository;
+	private final PlantaGatewayFactory gatewayFactory; // Inyectamos el patrón factory
 
-    public PlantaService(PlantaRepository plantaRepository) {
+    public PlantaService(PlantaRepository plantaRepository, PlantaGatewayFactory gatewayFactory) {
     	this.plantaRepository = plantaRepository;
+    	this.gatewayFactory = gatewayFactory;
     }
 
     public List<PlantaDTO> getAllPlantas() {
@@ -30,7 +32,7 @@ public class PlantaService {
 
     public Integer getCapacidadPlanta(String id, String fechaString) {
         Planta p = plantaRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Planta no encontrada")); // 404
+                .orElseThrow(() -> new RuntimeException("Planta no encontrada " + id)); // 404
         
         LocalDate fecha = LocalDate.parse(fechaString, DateTimeFormatter.ISO_DATE);
         
@@ -39,30 +41,20 @@ public class PlantaService {
         System.out.println("1. Planta encontrada: " + p.getNombre() + " (ID: " + id + ")");
         System.out.println("2. Fecha que tú pides: " + fecha);
         System.out.println("3. Contenido de la base de datos para esta planta:");
+        System.out.println("🔄 [PlantaService] Consultando capacidad externa para: " + p.getNombre());
+        System.out.println("   -> Tipo: " + p.getTipoComunicacion());
+        System.out.println("   -> URL: " + p.getUrlComunicacion());
         
-        if (p.getCapacidadDeterminada().isEmpty()) {
-            System.err.println("   ❌ ¡EL MAPA DE CAPACIDAD ESTÁ VACÍO! DataInitializer no ha cargado datos.");
-        } else {
-            p.getCapacidadDeterminada().forEach((k, v) -> {
-                System.out.println("   -> Disponible: " + k + " | Capacidad: " + v);
-                // Comprobación extra
-                if (k.isEqual(fecha)) {
-                    System.out.println("      ✅ ¡COINCIDENCIA ENCONTRADA AQUÍ!");
-                }
-            });
-        }
-        System.out.println("==========================================\n");
-        // -----------------------------------------------------------
-
-        // Búsqueda robusta en el mapa recuperado de BD
-        Optional<Map.Entry<LocalDate, Integer>> entry = p.getCapacidadDeterminada().entrySet().stream()
-                .filter(e -> e.getKey().isEqual(fecha))
-                .findFirst();
-
-        if (entry.isEmpty()) {
-            throw new IllegalArgumentException("No hay datos de capacidad para la fecha: " + fechaString);
-        }
+        // 2. PATRÓN FACTORY: Obtener el Gateway correcto (REST o SOCKET)
+        PlantaGatewayInterface gateway = gatewayFactory.getGateway(p.getTipoComunicacion());
         
-        return entry.get().getValue();
+        // 3. PATRÓN GATEWAY: Llamar al sistema externo
+        try {
+            return gateway.getCapacidad(p.getUrlComunicacion(), fecha);
+        } catch (Exception e) {
+            // Si falla la conexión, lanzamos error 500 o 400
+            System.err.println("❌ Error en comunicación externa: " + e.getMessage());
+            throw new RuntimeException("Error de comunicación con la planta externa (" + p.getNombre() + "): " + e.getMessage());
+        }
     }
 }

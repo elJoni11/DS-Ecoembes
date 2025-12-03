@@ -14,11 +14,18 @@ public class PlantaGatewayFactory {
     }
 
     public PlantaGatewayInterface getGateway(String tipoComunicacion) {
-        if ("REST".equalsIgnoreCase(tipoComunicacion)) {
-            return plasSBGateway;
-        } else if ("SOCKET".equalsIgnoreCase(tipoComunicacion)) {
-            return contSocketGateway;
+    	if (tipoComunicacion == null) {
+            throw new IllegalArgumentException("El tipo de comunicación es nulo");
         }
-        throw new IllegalArgumentException("Tipo de comunicación desconocido: " + tipoComunicacion);
+
+        // Selección simple (Switch-Case)
+        switch (tipoComunicacion.toUpperCase()) {
+            case "REST":
+                return plasSBGateway;
+            case "SOCKET":
+                return contSocketGateway;
+            default:
+                throw new IllegalArgumentException("Tipo de comunicación desconocido: " + tipoComunicacion);
+        }
     }
 }
