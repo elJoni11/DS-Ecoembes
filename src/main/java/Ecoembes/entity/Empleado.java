@@ -21,11 +21,8 @@ public class Empleado {
         this.password = password;
     }
 
-    // Constructor sin ID (Útil antes de ser guardado en base de datos)
-    public Empleado(String nombre, String email, String password) {
-        this.nombre = nombre;
-        this.email = email;
-        this.password = password;
+    /** Constructor vacío **/
+    public Empleado() {
     }
     
     // Getters 

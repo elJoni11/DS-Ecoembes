@@ -30,11 +30,8 @@ public class Planta {
         this.capacidadDeterminada = capacidadDeterminada;
     }
     
-	// Constructor sin capacidadDeterminada (Útil antes de ser guardado en base de datos)
-    public Planta(String plantaID, String nombre, String ubicacion) {
-		this.plantaID = plantaID;
-		this.nombre = nombre;
-		this.ubicacion = ubicacion;
+    /** Constructor vacío **/
+    public Planta() {
 	}
 
     // Getters
