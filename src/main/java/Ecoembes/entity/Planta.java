@@ -3,12 +3,23 @@ package Ecoembes.entity;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import jakarta.persistence.*;
 
+@Entity // Indica que se guarda en BD
+@Table(name = "plantas")
 public class Planta {
 	
-    private String plantaID; 
+	@Id // Clave primaria
+    private String plantaID;
+	
     private String nombre;   
     private String ubicacion; 
+    
+    // JPA crea una tabla extra automática para guardar este mapa
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "planta_capacidades", joinColumns = @JoinColumn(name = "planta_id"))
+    @MapKeyColumn(name = "fecha")
+    @Column(name = "capacidad")
     private Map<LocalDate, Integer> capacidadDeterminada = new ConcurrentHashMap<>(); // Map<Fecha, Capacidad>
 
     /** Constructor para crear/inicializar una Planta **/

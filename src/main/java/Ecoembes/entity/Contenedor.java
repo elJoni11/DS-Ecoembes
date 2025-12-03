@@ -4,16 +4,29 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "contenedores")
 public class Contenedor {
 
-    private String contenedorId;
-    private String ubicacion;
+	@Id
+	private String contenedorId;
+    
+	private String ubicacion;
     private int capacidad;
     private int codPostal;
     private LocalDateTime fechaConsulta; // Simulada a las 3:00
     private int envasesEstimados;
+    
+    @Enumerated(EnumType.STRING) // Guarda el nombre "VERDE", "ROJO" en lugar de 0, 1
     private NivelLlenado nivelLlenado;
+    
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "contenedor_historico", joinColumns = @JoinColumn(name = "contenedor_id"))
+    @MapKeyColumn(name = "fecha")
+    @Column(name = "nivel")
+    @Enumerated(EnumType.STRING)
     private Map<LocalDate, NivelLlenado> historico = new ConcurrentHashMap<>();
 
     /** Constructor para crear/inicializar un Contenedor **/

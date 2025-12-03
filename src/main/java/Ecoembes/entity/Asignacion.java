@@ -2,16 +2,24 @@ package Ecoembes.entity;
 
 import java.time.LocalDate;
 import java.util.List;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "asignaciones")
 public class Asignacion {
 
+	@Id
 	private String asignacionID;
-    private String plantaID;
+    
+	private String plantaID;
     private LocalDate fechaPrevista;
-    private List<Contenedor> listaContenedores;
     private int totalEnvasesEstimados;
     private String asignador;
     private boolean notificacion;
+    
+    // Relación OneToMany: Una asignación tiene muchos contenedores
+    @ManyToMany(fetch = FetchType.EAGER)
+    private List<Contenedor> listaContenedores;
 
     /** Constructor para registrar una asignación */
     public Asignacion(String asignacionID, String plantaID, LocalDate fechaPrevista, List<Contenedor> listaContenedores, 

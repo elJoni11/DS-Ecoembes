@@ -1,10 +1,16 @@
 package Ecoembes.entity;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "empleados")
 public class Empleado {
 	
-    private String id;
+	@Id
+    private String email; // Usamos email como ID para simplificar login
+    
+	private String id;
     private String nombre;
-    private String email;
     private String password;
 
     /** Constructor para crear/inicializar un Empleado **/
@@ -35,7 +41,6 @@ public class Empleado {
         return email;
     }
 
- 
     public String getPassword() {
         return password;
     }
