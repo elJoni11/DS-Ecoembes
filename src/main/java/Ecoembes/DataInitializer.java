@@ -24,7 +24,7 @@ public class DataInitializer implements CommandLineRunner {
             EmpleadoRepository empleadoRepository) {
 		this.contenedorRepository = contenedorRepository;
 		this.plantaRepository = plantaRepository;
-		this.empleadoRepository = empleadoRepository;
+		this.empleadoRepository = empleadoRepository; 
 		}
 
     @Override
