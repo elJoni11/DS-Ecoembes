@@ -16,8 +16,8 @@ public class PlasSBGateway implements PlantaGatewayInterface {
 
     @Override
     public int getCapacidad(String url, LocalDate fecha) {
-        // Construir URL: http://localhost:8081/api/v1/plassb/capacidad?fecha=2025-11-20
-        String urlCompleta = url + "/api/v1/plassb/capacidad?fecha=" + fecha.toString();
+        // Construir URL: http://localhost:8081/api/plassb/capacidad?fecha=2025-11-20
+        String urlCompleta = url + "/api/plassb/capacidad?fecha=" + fecha.toString();
         
         System.out.println("📡 [PlasSB Gateway] GET " + urlCompleta);
         
