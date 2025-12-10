@@ -7,7 +7,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.time.LocalDate;
 
-@Component
 public class ContSocketGateway implements PlantaGatewayInterface {
 	
 	@Override

@@ -46,7 +46,7 @@ public class PlantaService {
         System.out.println("   -> URL: " + p.getUrlComunicacion());
         
         // 2. PATRÓN FACTORY: Obtener el Gateway correcto (REST o SOCKET)
-        PlantaGatewayInterface gateway = gatewayFactory.getGateway(p.getTipoComunicacion());
+        PlantaGatewayInterface gateway = gatewayFactory.createGateway(p.getTipoComunicacion());
         
         // 3. PATRÓN GATEWAY: Llamar al sistema externo
         try {

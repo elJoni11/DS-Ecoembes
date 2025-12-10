@@ -5,7 +5,6 @@ import org.springframework.web.client.RestTemplate;
 import java.time.LocalDate;
 import java.util.Map;
 
-@Component
 public class PlasSBGateway implements PlantaGatewayInterface {
 	
 	private final RestTemplate restTemplate;
